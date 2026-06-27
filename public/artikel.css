@@ -1,0 +1,211 @@
+/* ==============================================
+   artikel.css — Ringlock Indonesia Blog Page
+   Custom styles yang melengkapi Tailwind CSS.
+   ============================================== */
+
+/* -----------------------------------------------
+   BASE
+----------------------------------------------- */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* -----------------------------------------------
+   NAVBAR — Mobile Menu Transition
+----------------------------------------------- */
+#mobile-menu {
+  transition: max-height 0.35s ease, opacity 0.3s ease;
+}
+#mobile-menu.open {
+  max-height: 360px;
+  opacity: 1;
+}
+
+/* -----------------------------------------------
+   NAVBAR — Nav link underline hover
+----------------------------------------------- */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: rgb(0, 35, 111);
+  transition: width 0.25s ease;
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* -----------------------------------------------
+   NAVBAR — Scroll shadow enhancement
+----------------------------------------------- */
+#navbar {
+  transition: box-shadow 0.2s ease;
+}
+
+/* -----------------------------------------------
+   ARTICLE BODY — prose typography rhythm
+   Applied to the <article> element.
+   Keeps spacing consistent without Tailwind @prose.
+----------------------------------------------- */
+.prose-article p + h2,
+.prose-article p + h3 {
+  margin-top: 2rem;
+}
+
+.prose-article h2 + p,
+.prose-article h3 + p {
+  margin-top: 0.75rem;
+}
+
+/* -----------------------------------------------
+   BLOCKQUOTE — left border accent
+----------------------------------------------- */
+blockquote {
+  position: relative;
+}
+blockquote::before {
+  content: '\201C';
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  font-size: 4rem;
+  line-height: 1;
+  color: rgb(0, 35, 111);
+  opacity: 0.12;
+  font-family: Georgia, serif;
+  pointer-events: none;
+}
+
+/* -----------------------------------------------
+   ARTICLE CARDS — hover lift
+----------------------------------------------- */
+.article-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.article-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 35, 111, 0.12);
+}
+
+/* -----------------------------------------------
+   HERO IMAGE — subtle parallax feel on scroll
+   (CSS only, no JS needed)
+----------------------------------------------- */
+.hero-image-container {
+  overflow: hidden;
+}
+.hero-image-container img {
+  transition: transform 0.6s ease;
+}
+.hero-image-container:hover img {
+  transform: scale(1.02);
+}
+
+/* -----------------------------------------------
+   CTA Banner — image overlay on hover
+----------------------------------------------- */
+.cta-banner-img {
+  transition: transform 0.5s ease;
+}
+.cta-banner-img:hover {
+  transform: scale(1.03);
+}
+
+/* -----------------------------------------------
+   STICKY SIDEBAR — smooth behavior
+----------------------------------------------- */
+aside .sticky {
+  will-change: transform;
+}
+
+/* -----------------------------------------------
+   CHECKLIST items — spacing finesse
+----------------------------------------------- */
+.checklist-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(0, 35, 111, 0.08);
+}
+.checklist-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* -----------------------------------------------
+   FOOTER link hover transition
+----------------------------------------------- */
+footer a {
+  transition: color 0.2s ease;
+}
+
+/* -----------------------------------------------
+   READING PROGRESS BAR
+   Thin blue line at top of viewport showing
+   scroll progress through the article.
+----------------------------------------------- */
+#reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, rgb(0, 35, 111), rgb(59, 130, 246));
+  z-index: 100;
+  transition: width 0.1s linear;
+  border-radius: 0 2px 2px 0;
+}
+
+/* -----------------------------------------------
+   SCROLL-TO-TOP button
+----------------------------------------------- */
+/* #scroll-top {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgb(0, 35, 111);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 49;
+  box-shadow: 0 4px 14px rgba(0, 35, 111, 0.35);
+}
+#scroll-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+#scroll-top:hover {
+  transform: translateY(-2px);
+  background: rgb(30, 64, 175);
+} */
+
+
+  @keyframes popup {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+
+/* -----------------------------------------------
+   MOBILE responsive tweaks
+----------------------------------------------- */
+@media (max-width: 768px) {
+  blockquote::before {
+    font-size: 3rem;
+    top: -4px;
+  }
+}

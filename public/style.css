@@ -1,0 +1,112 @@
+/* ==============================================
+   style.css — Ringlock Indonesia
+   Custom styles yang melengkapi Tailwind CSS.
+   Tailwind utility classes tetap ada di HTML,
+   file ini hanya untuk style yang tidak bisa
+   ditulis langsung sebagai Tailwind class.
+   ============================================== */
+
+
+/* -----------------------------------------------
+   BASE
+   ----------------------------------------------- */
+
+/* Antialiasing font global */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* -----------------------------------------------
+   NAVBAR — Mobile Menu Transition
+   ----------------------------------------------- */
+
+#mobile-menu {
+  transition: max-height 0.35s ease, opacity 0.3s ease;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+#mobile-menu.open {
+  max-height: 400px;
+  opacity: 1;
+}
+
+
+/* -----------------------------------------------
+   NAVBAR — Nav Link Underline Hover Effect
+   ----------------------------------------------- */
+
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: rgb(0, 35, 111); /* brand-dark */
+  transition: width 0.25s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+
+/* -----------------------------------------------
+   HERO — Text Shadow
+   Memastikan teks terbaca di atas foto latar.
+   ----------------------------------------------- */
+
+.hero-text-shadow {
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+}
+
+
+/* -----------------------------------------------
+   QUOTE BANNER — Background Image & Overlay
+   Ganti URL di bawah dengan foto milik klien.
+   ----------------------------------------------- */
+
+.quote-bg {
+  background-image: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=60&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+}
+
+.quote-overlay {
+  background: rgba(0, 35, 111, 0.88); /* brand-dark + opacity */
+}
+
+
+/* -----------------------------------------------
+   PROJECT CARDS — Hover Lift Effect
+   ----------------------------------------------- */
+
+.project-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 35, 111, 0.15);
+}
+
+
+/* -----------------------------------------------
+   PRODUCT SECTION — Spec Table Row Divider
+   ----------------------------------------------- */
+
+.spec-row {
+  border-bottom: 1px dashed rgba(0, 35, 111, 0.15);
+}
+
+.spec-row:last-child {
+  border-bottom: none;
+}
