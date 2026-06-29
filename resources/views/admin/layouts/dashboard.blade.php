@@ -11,7 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet" />
-
+  <link rel="shortcut icon" href="{{ asset('assets/logo.png') }}" type="image/x-icon" />
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -46,6 +47,11 @@
       <a href="{{ url('/admin/articles') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold {{ Request::is('admin/articles*') ? 'bg-white/10 text-white' : 'text-blue-100/70 hover:bg-white/5 hover:text-white' }} transition-all">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
         Kelola Artikel
+      </a>
+
+      <a href="{{ url('/admin/products') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold {{ Request::is('admin/products*') ? 'bg-white/10 text-white' : 'text-blue-100/70 hover:bg-white/5 hover:text-white' }} transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+        Kelola Produk
       </a>
     </nav>
 

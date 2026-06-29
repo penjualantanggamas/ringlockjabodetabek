@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="shortcut icon" href="{{ asset('assets/logo.png') }}" type="image/x-icon" />
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -60,19 +61,29 @@
     </div>
   </div>
 
-  <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 px-5 overflow-hidden max-h-0 opacity-0 transition-all duration-300">
+  <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 px-5">
     <nav class="flex flex-col py-4 gap-1">
-      <a href="{{ url('/') }}"  class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Beranda</a>
-      <a href="{{ url('/#about') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Tentang Kami</a>
-      <a href="{{ url('/produk') }}" class="py-2.5 text-[14px] font-semibold text-brand-dark transition-colors border-b border-gray-50">Produk</a>
-      <a href="#contact"  class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Kontak</a>
-      <a href="#contact"  class="mt-3 inline-flex justify-center bg-brand-dark hover:bg-blue-900 text-white text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors duration-200">Minta Penawaran</a>
+      <a href="{{ url('/') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Beranda</a>
+      <a href="{{ url('/tentang') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Tentang Kami</a>
+      <a href="{{ url('/produk') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Produk</a>
+      <a href="{{ route('artikel.index') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Artikel</a>
+      <a href="#contact" class="mt-3 inline-flex justify-center bg-brand-dark hover:bg-blue-900 text-white text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors duration-200">Minta Penawaran</a>
     </nav>
   </div>
 </header>
+    
 
 <section class="pt-14 pb-0 px-5 lg:px-8">
   <div class="max-w-3xl mx-auto text-center">
+
+  <div class="flex justify-start mb-6 -mt-4">
+      <a href="{{ url('/artikel') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-brand-dark transition-colors group">
+        <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Kembali
+      </a>
+    </div>
 
     <span class="inline-block bg-brand-dark text-white text-[11px] font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5">
       @if($article->category == 'edukasi-k3') Edukasi K3 &amp; Teknik
@@ -136,10 +147,6 @@
             <svg class="w-4 h-4 shrink-0 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
             0812365 1717
           </li>
-          <li class="flex items-center gap-3 text-blue-200/70 text-[13px]">
-            <svg class="w-4 h-4 shrink-0 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            kontak@ringlock.id
-          </li>
         </ul>
       </div>
 
@@ -175,10 +182,9 @@
 
   <div class="border-t border-white/10">
     <div class="max-w-7xl mx-auto px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <p class="text-blue-200/50 text-[12px]">© 2026 Ringlock Indonesia Jabodetabek. Powered by Tangga Mas Jaya Makmur</p>
+      <a href="https://ringlockindonesia.com" class="text-blue-200/40 hover:text-blue-200/70 text-[11px] transition-colors">Powered by Ringlock Indonesia</a>
       <div class="flex items-center gap-4">
-        <a href="#" class="text-blue-200/40 hover:text-blue-200/70 text-[11px] transition-colors">Kebijakan Privasi</a>
-        <a href="#" class="text-blue-200/40 hover:text-blue-200/70 text-[11px] transition-colors">Syarat &amp; Ketentuan</a>
+        <a href="https://tanggamasjayamakmur.com" class="text-blue-200/40 hover:text-blue-200/70 text-[11px] transition-colors">Tangga Mas Jaya Makmur</a>
       </div>
     </div>
   </div>

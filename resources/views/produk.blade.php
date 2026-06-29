@@ -9,7 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
-
+  <link rel="shortcut icon" href="{{ asset('assets/logo.png') }}" type="image/x-icon" />
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -143,11 +144,11 @@
   <!-- Mobile Menu -->
   <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 px-5">
     <nav class="flex flex-col py-4 gap-1">
-      <a href="index.html"  class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Beranda</a>
-      <a href="index.html#about" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Tentang Kami</a>
-      <a href="produk.html" class="class="mt-3 inline-flex justify-center bg-brand-dark hover:bg-blue-900 text-white text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors duration-200">Produk</a>
-      <a href="index.html#projects" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Kontak</a>
-      <a href="artikel.html"  class="font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Minta Penawaran</a>
+      <a href="{{ url('/') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Beranda</a>
+      <a href="{{ url('/tentang') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Tentang Kami</a>
+      <a href="{{ url('/produk') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Produk</a>
+      <a href="{{ route('artikel.index') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Artikel</a>
+      <a href="#contact" class="mt-3 inline-flex justify-center bg-brand-dark hover:bg-blue-900 text-white text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors duration-200">Minta Penawaran</a>
     </nav>
   </div>
 </header>
@@ -225,7 +226,7 @@
               </svg>
               Masukkan Keranjang
             </button>
-            <a href="#contact" class="inline-flex items-center justify-center text-brand-dark font-bold text-[14px] px-6 py-3 rounded-lg hover:bg-gray-50 transition-all duration-200">
+            <a href="#contact" class="inline-flex items-center justify-center text-brand-dark font-bold text-[14px] px-6 py-3 rounded-lg bg-[#F8B90F] hover:bg-gray-100 transition-all duration-200">
               Hubungi Kami
             </a>
           </div>
@@ -338,7 +339,7 @@
               </svg>
               Masukkan Keranjang
             </button>
-            <a href="#contact" class="inline-flex items-center justify-center text-brand-dark font-bold text-[14px] px-6 py-3 rounded-lg hover:bg-gray-50 transition-all duration-200">
+            <a href="#contact" class="inline-flex items-center justify-center text-brand-dark font-bold text-[14px] px-6 py-3 rounded-lg bg-[#F8B90F] hover:bg-gray-100 transition-all duration-200">
               Hubungi Kami
             </a>
           </div>
@@ -399,7 +400,7 @@
       <p class="text-gray-500 text-[14px] mt-2 max-w-2xl mx-auto">Komponen lengkap sistem scaffolding Ringlock untuk berbagai kebutuhan konstruksi.</p>
     </div>
  
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-5">
  
       <!-- CARD: Diagonal Brace -->
       <div class="other-card bg-white rounded-2xl overflow-hidden shadow-md group flex flex-col">
@@ -638,20 +639,16 @@
             <svg class="w-4 h-4 shrink-0 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
             0812365 1717
           </li>
-          <li class="flex items-center gap-3 text-blue-200/70 text-[13px]">
-            <svg class="w-4 h-4 shrink-0 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            kontak@ringlock.id
-          </li>
         </ul>
       </div>
       <div class="grid grid-cols-2 gap-8">
         <div>
           <h4 class="text-white font-bold text-[13px] tracking-widest uppercase mb-5">Menu Cepat</h4>
           <ul class="space-y-3">
-            <li><a href="index.html"  class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Beranda</a></li>
-            <li><a href="#"           class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Tentang Kami</a></li>
-            <li><a href="produk.html" class="text-white font-semibold text-[13px]">Produk Scaffolding</a></li>
-            <li><a href="#"           class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Proyek</a></li>
+            <li><a href="{{ url('/') }}" class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Beranda</a></li>
+            <li><a href="{{ url('/tentang') }}"class="text-blue-200/70 font-semibold hover:text-white text-[13px] ">Tentang Kami</a></li>
+            <li><a href="{{ url('/produk') }}" class="text-white font-semibold text-[13px] transition-colors">Produk Scaffolding</a></li>
+            <li><a href="{{ route('artikel.index') }}" class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Artikel</a></li>
             <li><a href="#contact"    class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Kontak</a></li>
           </ul>
         </div>
@@ -681,10 +678,9 @@
   </div>
   <div class="border-t border-white/10">
     <div class="max-w-7xl mx-auto px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <p class="text-blue-200/50 text-[12px]">© 2026 Ringlock Indonesia Jabodetabek. Powered by Tanaga Mas Jaya Makmur</p>
+      <a href="https://ringlockindonesia.com" class="text-blue-200/40 hover:text-blue-200/70 text-[11px] transition-colors">Powered by Ringlock Indonesia</a>
       <div class="flex items-center gap-4">
-        <a href="#" class="text-blue-200/40 hover:text-blue-200/70 text-[11px] transition-colors">Kebijakan Privasi</a>
-        <a href="#" class="text-blue-200/40 hover:text-blue-200/70 text-[11px] transition-colors">Syarat &amp; Ketentuan</a>
+        <a href="https://tanggamasjayamakmur.com" class="text-blue-200/40 hover:text-blue-200/70 text-[11px] transition-colors">Tangga Mas Jaya Makmur</a>
       </div>
     </div>
   </div>

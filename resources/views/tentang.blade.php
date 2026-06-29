@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/x-icon" href="./assets/logo.png"/>
+  <link rel="shortcut icon" href="{{ asset('assets/logo.png') }}" type="image/x-icon" />
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -74,11 +74,11 @@
   <!-- Mobile Menu -->
   <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 px-5">
     <nav class="flex flex-col py-4 gap-1">
-      <a href="index.html"  class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Beranda</a>
-      <a href="index.html#about" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Tentang Kami</a>
-      <a href="produk.html" class="class="mt-3 inline-flex justify-center bg-brand-dark hover:bg-blue-900 text-white text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors duration-200">Produk</a>
-      <a href="index.html#projects" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Kontak</a>
-      <a href="artikel.html"  class="font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Minta Penawaran</a>
+      <a href="{{ url('/') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Beranda</a>
+      <a href="{{ url('/tentang') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Tentang Kami</a>
+      <a href="{{ url('/produk') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Produk</a>
+      <a href="{{ route('artikel.index') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Artikel</a>
+      <a href="#contact" class="mt-3 inline-flex justify-center bg-brand-dark hover:bg-blue-900 text-white text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors duration-200">Minta Penawaran</a>
     </nav>
   </div>
 </header>
@@ -170,10 +170,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       
       <!-- Pilar 1: Hot Dip Galvanized -->
-      <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-        <div class="w-12 h-12 bg-[rgb(229,238,255)] rounded-xl flex items-center justify-center text-[rgb(0,35,111)]">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        </div>
+      <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-4 hover:scale-[1.03] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer">
         <h3 class="font-extrabold text-[rgb(0,35,111)] text-base">Material Hot Dip Galvanized</h3>
         <p class="text-gray-500 text-xs leading-relaxed font-medium">
           Seluruh pipa perancah kami dilapisi dengan sistem galvanisasi celup panas besi cor kokoh, memastikan komponen tahan terhadap korosi ekstrem di berbagai cuaca buruk proyek terbuka.
@@ -181,10 +178,7 @@
       </div>
 
       <!-- Pilar 2: Prioritas Utama K3 -->
-      <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        </div>
+      <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-4 hover:scale-[1.03] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer">
         <h3 class="font-extrabold text-[rgb(0,35,111)] text-base">Keamanan Standar K3</h3>
         <p class="text-gray-500 text-xs leading-relaxed font-medium">
           Setiap sambungan ring dan ledger didesain presisi mengacu pada standar regulasi Keselamatan dan Kesehatan Kerja (K3) konstruksi sipil demi keselamatan para pekerja di ketinggian.
@@ -192,10 +186,7 @@
       </div>
 
       <!-- Pilar 3: Distribusi Tangkas -->
-      <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        </div>
+      <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-4 hover:scale-[1.03] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer">
         <h3 class="font-extrabold text-[rgb(0,35,111)] text-base">Ready Stock Se-Jabodetabek</h3>
         <p class="text-gray-500 text-xs leading-relaxed font-medium">
           Gudang pusat logistik kami yang strategis menjamin ketersediaan stok ratusan ribu unit siap kirim armada truk demi menjaga ketepatan waktu proyek konstruksi Anda.
@@ -318,11 +309,11 @@
         <div>
           <h4 class="text-white font-bold text-[13px] tracking-widest uppercase mb-5">Menu Cepat</h4>
           <ul class="space-y-3">
-            <li><a href="#hero"     class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Beranda</a></li>
-            <li><a href="#about"    class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Tentang Kami</a></li>
-            <li><a href="produk.html"  class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Produk Scaffolding</a></li>
-            <li><a href="#project" class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Proyek</a></li>
-            <li><a href="#contact"  class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Kontak</a></li>
+            <li><a href="{{ url('/') }}" class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Beranda</a></li>
+            <li><a href="{{ url('/tentang') }}" class="text-white font-semibold text-[13px] transition-colors">Tentang Kami</a></li>
+            <li><a href="{{ url('/produk') }}" class="text-blue-200/70 font-semibold hover:text-white text-[13px]">Produk Scaffolding</a></li>
+            <li><a href="{{ route('artikel.index') }}" class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Artikel</a></li>
+            <li><a href="#contact"    class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Kontak</a></li>
           </ul>
         </div>
 
@@ -351,7 +342,6 @@
       </div>
     </div>
   </div>
-
   <div class="border-t border-white/10">
     <div class="max-w-7xl mx-auto px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2">
       <a href="https://ringlockindonesia.com" class="text-blue-200/40 hover:text-blue-200/70 text-[11px] transition-colors">Powered by Ringlock Indonesia</a>
