@@ -19,7 +19,7 @@
 /* -----------------------------------------------
    STATE
 ----------------------------------------------- */
-let cart = [];  // [{ id, name, variant, qty }]
+let cart = JSON.parse(localStorage.getItem('ringlock_cart')) || [];  // [{ id, name, variant, qty }]
 
 /* -----------------------------------------------
    DOM REFS — resolved setelah DOMContentLoaded
@@ -38,6 +38,20 @@ let pickerContext = {
 };
 
 /* -----------------------------------------------
+   LOCALSTORAGE STORAGE ENGINE
+----------------------------------------------- */
+function saveCartToStorage() {
+    localStorage.setItem('ringlock_cart', JSON.stringify(cart));
+}
+
+// Fungsi pembantu baru untuk menghapus isi keranjang belanja secara total setelah checkout sukses
+function clearCartStorage() {
+    localStorage.removeItem('ringlock_cart');
+    cart = [];
+    updateCartUI();
+}
+
+/* -----------------------------------------------
    VARIANT PICKER: showVariantPicker
    Tampilkan modal pilih ukuran.
    name        — string nama produk
@@ -53,10 +67,8 @@ function showVariantPicker(name, variants, triggerBtn) {
 
   /* Render isi modal */
   modal.innerHTML = `
-    <!-- Handle bar (mobile) -->
     <div class="sm:hidden w-10 h-1 bg-gray-200 rounded-full mx-auto mt-3 mb-1"></div>
 
-    <!-- Header -->
     <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-gray-100">
       <div>
         <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-0.5">Pilih Ukuran</p>
@@ -71,7 +83,6 @@ function showVariantPicker(name, variants, triggerBtn) {
       </button>
     </div>
 
-    <!-- Variant grid -->
     <div class="px-5 py-4">
       <div class="grid grid-cols-2 gap-2.5" id="vp-variant-grid">
         ${variants.map(v => `
@@ -86,7 +97,6 @@ function showVariantPicker(name, variants, triggerBtn) {
       </div>
     </div>
 
-    <!-- Footer hint -->
     <p class="text-center text-[11px] text-gray-400 pb-5 px-5">
       Pilih ukuran untuk menambahkan ke keranjang permintaan.
     </p>`;
@@ -172,6 +182,7 @@ function addToCart(name, variant, btn) {
     cart.push({ id, name, variant: variant || '', qty: 1 });
   }
 
+  saveCartToStorage(); // <-- Menyimpan ke LocalStorage
   updateCartUI();
   flashButton(btn);
   animateBadge();
@@ -182,6 +193,7 @@ function addToCart(name, variant, btn) {
 ----------------------------------------------- */
 function removeFromCart(id) {
   cart = cart.filter(item => item.id !== id);
+  saveCartToStorage(); // <-- Menyimpan perubahan ke LocalStorage
   updateCartUI();
 }
 
@@ -194,7 +206,10 @@ function changeQty(id, delta) {
   if (!item) return;
   item.qty += delta;
   if (item.qty <= 0) removeFromCart(id);
-  else updateCartUI();
+  else {
+    saveCartToStorage(); // <-- Menyimpan penyesuaian jumlah ke LocalStorage
+    updateCartUI();
+  }
 }
 
 /* -----------------------------------------------
@@ -239,7 +254,6 @@ function updateCartUI() {
     <div class="cart-item flex items-start gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100"
          data-id="${escHtml(item.id)}">
 
-      <!-- Icon placeholder -->
       <div class="w-10 h-10 bg-brand-light rounded-lg flex items-center justify-center shrink-0">
         <svg class="w-5 h-5 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -247,14 +261,12 @@ function updateCartUI() {
         </svg>
       </div>
 
-      <!-- Info -->
       <div class="flex-1 min-w-0">
         <p class="font-bold text-brand-dark text-[13px] leading-snug truncate">${escHtml(item.name)}</p>
         ${item.variant
           ? `<p class="text-[11px] text-gray-400 font-medium mt-0.5">${escHtml(item.variant)}</p>`
           : ''}
 
-        <!-- Qty controls -->
         <div class="flex items-center gap-2 mt-2">
           <button
             class="qty-btn w-6 h-6 rounded-md bg-white border border-gray-200 hover:border-brand-dark
@@ -274,7 +286,6 @@ function updateCartUI() {
         </div>
       </div>
 
-      <!-- Delete button -->
       <button
         class="remove-btn w-7 h-7 rounded-lg bg-red-50 hover:bg-red-100 flex items-center
                justify-center text-red-400 hover:text-red-600 transition-colors shrink-0 mt-0.5"
@@ -351,13 +362,12 @@ function animateBadge() {
 }
 
 /* -----------------------------------------------
-   CHECKOUT: sendToWhatsApp
-   Format pesan & redirect ke WA
+   CHECKOUT: sendToWhatsApp (Deprecated / Dimatikan di Blade)
 ----------------------------------------------- */
 function sendToWhatsApp() {
   if (cart.length === 0) return;
 
-  const WA_NUMBER = '628123651717';  // ← ganti dengan nomor aktif
+  const WA_NUMBER = '628123651717';
 
   const itemLines = cart.map((item, i) => {
     const variantStr = item.variant ? ` (${item.variant})` : '';
@@ -387,9 +397,6 @@ function escHtml(str) {
 
 /* -----------------------------------------------
    VARIANT SELECTOR: Vertical (Ringlock Standard)
-   Logika swap gambar + update label panjang.
-   Diletakkan di sini agar satu file JS untuk
-   semua interaktivitas halaman produk.
 ----------------------------------------------- */
 function initVerticalVariants() {
   const mainImg       = document.getElementById('main-product-img');
@@ -405,11 +412,9 @@ function initVerticalVariants() {
       const imgKecil    = this.querySelector('.variant-img');
       const txtKecil    = this.querySelector('.variant-txt');
 
-      // Simpan state lama untuk swap thumbnail
       const ukuranLama  = panjangLabel.textContent.trim();
       const gambarLama  = mainImg.src;
 
-      // Fade swap gambar utama
       mainImg.style.opacity = '0.2';
       setTimeout(() => {
         mainImg.src           = gambarBaru;
@@ -417,7 +422,6 @@ function initVerticalVariants() {
         panjangLabel.textContent = ukuranBaru;
       }, 150);
 
-      // Swap data thumbnail yang diklik ← data lama
       this.dataset.ukuran = ukuranLama;
       this.dataset.gambar = gambarLama;
       imgKecil.src        = gambarLama;
@@ -428,7 +432,6 @@ function initVerticalVariants() {
 
 /* -----------------------------------------------
    VARIANT SELECTOR: Horizontal (Ringlock Ledger)
-   Logika: aktif-state + swap gambar + update label.
 ----------------------------------------------- */
 function initLedgerVariants() {
   const mainImg      = document.getElementById('main-ledger-img');
@@ -467,7 +470,6 @@ function initLedgerVariants() {
     });
   });
 
-  // Set variant pertama aktif saat load
   setActive(variantBtns[0]);
 }
 
@@ -488,15 +490,11 @@ document.addEventListener('DOMContentLoaded', () => {
     emptyHint: document.getElementById('cart-empty-hint'),
   };
 
-  /* --- Drawer open/close --- */
   DOM.fab.addEventListener('click', openDrawer);
   DOM.closeBtn.addEventListener('click', closeDrawer);
   DOM.overlay.addEventListener('click', closeDrawer);
-
-  /* --- WA Checkout --- */
   DOM.waBtn.addEventListener('click', sendToWhatsApp);
 
-  /* --- Add to Cart: Vertical (Ringlock Standard) --- */
   const btnVertical = document.getElementById('btn-add-vertical');
   if (btnVertical) {
     btnVertical.addEventListener('click', () => {
@@ -508,7 +506,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* --- Add to Cart: Horizontal (Ringlock Ledger) --- */
   const btnLedger = document.getElementById('btn-add-ledger');
   if (btnLedger) {
     btnLedger.addEventListener('click', () => {
@@ -520,13 +517,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* --- Add to Cart: Produk Lainnya (grid cards) ---
-       Event delegation ke #lainnya section.
-       Logika bercabang:
-       1. Produk dengan data-has-variants="true"
-          → buka Variant Picker Modal terlebih dahulu
-       2. Produk tanpa varian
-          → langsung addToCart()                      */
   const lainnyaSection = document.getElementById('lainnya');
   if (lainnyaSection) {
     lainnyaSection.addEventListener('click', e => {
@@ -537,7 +527,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const name = card?.querySelector('.card-title')?.textContent?.trim() || 'Produk';
 
       if (btn.dataset.hasVariants === 'true') {
-        /* — Produk dengan varian: tampilkan picker — */
         let variants = [];
         try {
           variants = JSON.parse(btn.dataset.variants || '[]');
@@ -546,22 +535,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         showVariantPicker(name, variants, btn);
       } else {
-        /* — Produk tanpa varian: langsung masuk keranjang — */
         addToCart(name, '', btn);
       }
     });
   }
 
-  /* --- Variant Picker: tutup via backdrop click & Escape --- */
   const vpBackdrop = document.getElementById('vp-backdrop');
   if (vpBackdrop) {
     vpBackdrop.addEventListener('click', e => {
-      // Hanya tutup jika klik langsung pada backdrop, bukan modal
       if (e.target === vpBackdrop) closeVariantPicker();
     });
   }
 
-  /* Escape menutup picker atau drawer (picker prioritas) */
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     const modal = document.getElementById('vp-modal');
@@ -572,10 +557,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  /* --- Init variant selectors --- */
   initVerticalVariants();
   initLedgerVariants();
 
-  /* --- Initial render (cart kosong) --- */
+  /* --- Initial render (Membaca data dari localstorage yang ter-keep) --- */
   updateCartUI();
 });

@@ -5,16 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Produk Scaffolding — Ringlock Indonesia</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="shortcut icon" href="{{ asset('assets/logo.png') }}" type="image/x-icon" />
-  
-  <!-- Tailwind CSS CDN -->
+
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Tailwind Custom Config -->
   <script>
     tailwind.config = {
       theme: {
@@ -32,10 +29,8 @@
     }
   </script>
 
-  <!-- Shared CSS -->
-  <link rel="stylesheet" href="style.css" />
+  <link class="main-css" rel="stylesheet" href="{{ asset('style.css') }}" />
 
-  <!-- Page-specific styles -->
   <style>
     /* -----------------------------------------------
        PRODUCT CARD (Lainnya) — hover lift
@@ -95,9 +90,7 @@
     }
     .badge-pop { animation: badge-pop 0.3s ease; }
 
-    /* -----------------------------------------------
-       Add-to-cart button feedback flash
-    ----------------------------------------------- */
+    /* Add-to-cart button feedback flash */
     .btn-added {
       background-color: #16a34a !important;
       color: #fff !important;
@@ -107,19 +100,14 @@
 <body class="font-sans bg-white text-gray-800">
 
 
-<!-- =============================================
-     NAVBAR
-     ============================================= -->
 <header id="navbar" class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
   <div class="max-w-7xl mx-auto px-5 lg:px-8">
     <div class="flex items-center justify-between h-16 lg:h-[68px]">
 
-      <!-- Logo -->
       <a href="#" class="flex items-center gap-2 shrink-0">
         <img src="./assets/logoringlock(blue).png" alt="Logo Web" class="w-auto h-12 object-contain">
       </a>
 
-      <!-- Desktop Nav Links -->
       <nav class="hidden md:flex items-center gap-7">
         <a href="{{ url('/') }}" class="nav-link text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors">Beranda</a>
         <a href="{{ url('/tentang') }}" class="nav-link text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors">Tentang Kami</a>
@@ -127,12 +115,43 @@
         <a href="{{ url('/artikel') }}" class="nav-link text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors">Artikel</a>
       </nav>
 
-      <!-- Desktop CTA -->
-      <a href="#contact" class="hidden md:inline-flex items-center gap-1.5 bg-brand-dark hover:bg-blue-900 text-white text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors duration-200 shadow-sm">
-        Minta Penawaran
-      </a>
+      @auth
+        <div class="relative hidden md:block" id="profile-dropdown-wrapper">
+          <button onclick="toggleProfileDropdown()" class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-4 py-2 rounded-full transition-colors focus:outline-none">
+            <div class="w-7 h-7 rounded-full bg-[rgb(0,35,111)] text-white flex items-center justify-center font-bold text-xs uppercase shadow-sm">
+              {{ substr(Auth::user()->name, 0, 1) }}
+            </div>
+            <span class="text-[13px] font-semibold text-gray-700 max-w-[100px] truncate">{{ Auth::user()->name }}</span>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+          </button>
 
-      <!-- Hamburger (Mobile) -->
+          <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 hidden animate-in fade-in slide-in-from-top-2 duration-150 z-50">
+            <div class="px-4 py-2 border-b border-gray-50 mb-1">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Status Akun</p>
+              <p class="text-xs text-green-600 font-semibold mt-0.5 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 bg-green-500 rounded-full inline-block animate-pulse"></span> Terautentikasi
+              </p>
+            </div>
+            <a href="{{ url('/profil/edit') }}" class="flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-gray-700 hover:bg-gray-50 hover:text-[rgb(0,35,111)] transition-colors">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              Edit Profil
+            </a>
+            
+            <form action="{{ route('logout') }}" method="POST" class="border-t border-gray-50 mt-1">
+              @csrf
+              <button type="submit" class="w-full flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold text-red-600 hover:bg-red-50 transition-colors text-left">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                Keluar Akun
+              </button>
+            </form>
+          </div>
+        </div>
+      @else
+        <a href="#contact" class="hidden md:inline-flex items-center gap-1.5 bg-brand-dark hover:bg-blue-900 text-white text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors duration-200 shadow-sm">
+          Minta Penawaran
+        </a>
+      @endauth
+
       <button id="hamburger" aria-label="Toggle menu" class="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5px]">
         <span class="ham-line block w-6 h-[2px] bg-brand-dark rounded transition-all duration-300"></span>
         <span class="ham-line block w-6 h-[2px] bg-brand-dark rounded transition-all duration-300"></span>
@@ -141,40 +160,31 @@
     </div>
   </div>
 
-  <!-- Mobile Menu -->
-  <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 px-5">
+  <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 px-5 hidden">
     <nav class="flex flex-col py-4 gap-1">
       <a href="{{ url('/') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Beranda</a>
       <a href="{{ url('/tentang') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Tentang Kami</a>
       <a href="{{ url('/produk') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Produk</a>
       <a href="{{ route('artikel.index') }}" class="py-2.5 text-[14px] font-semibold text-gray-700 hover:text-brand-dark transition-colors border-b border-gray-50">Artikel</a>
-      <a href="#contact" class="mt-3 inline-flex justify-center bg-brand-dark hover:bg-blue-900 text-white text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors duration-200">Minta Penawaran</a>
+      
+      @auth
+        <a href="{{ url('/profil/edit') }}" class="py-2.5 text-[14px] font-semibold text-blue-700 border-b border-gray-50 flex items-center gap-2">📱 Edit Profil ({{ Auth::user()->name }})</a>
+        <form action="{{ route('logout') }}" method="POST" class="mt-2">
+          @csrf
+          <button type="submit" class="w-full text-center bg-red-50 text-red-600 text-[13px] font-bold py-2.5 rounded-xl">Keluar Akun</button>
+        </form>
+      @else
+        <a href="#contact" class="mt-3 inline-flex justify-center bg-brand-dark hover:bg-blue-900 text-white text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors duration-200">Minta Penawaran</a>
+      @endauth
     </nav>
   </div>
 </header>
 
-<!-- <section class="bg-brand-bg border-b border-blue-100 py-10 lg:py-14">
-  
-</section> -->
 
-<!-- =============================================
-     MODUL VERTICAL RINGLOCK
-     layout: spec card kiri, image panel kanan
-     ============================================= -->
 <section id="product" class="bg-brand-light py-20 lg:py-28">
   <div class="max-w-7xl mx-auto px-5 lg:px-8">
-    <div class="max-w-7xl mx-auto px-5 lg:px-8 text-center">
-    <!-- <h1 class="text-3xl lg:text-4xl font-extrabold text-brand-dark tracking-tight mb-3">
-      Produk Ringlock Indonesia
-    </h1> -->
-  </div>
-    <!-- <div class="text-center mb-10">
-      <span class="inline-block bg-brand-dark/10 text-brand-dark text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full">Produk Kami</span>
-    </div> -->
-
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div class="bg-white rounded-3xl shadow-xl border border-gray-100 relative overflow-hidden min-h-[450px] lg:h-full p-4 lg:p-5 flex items-center justify-center">
-        <div class="relative w-full h-full flex items-center justify-center"></div>
         <img 
           id="main-product-img"
           src="assets/ringlockvertical.svg" 
@@ -182,7 +192,7 @@
           class="w-full h-full object-cover object-center transition-all duration-300"
         />
       </div>
-<div class="bg-white rounded-3xl shadow-xl p-8 lg:p-12 flex flex-col justify-between border border-gray-100">
+      <div class="bg-white rounded-3xl shadow-xl p-8 lg:p-12 flex flex-col justify-between border border-gray-100">
         <div>
           <span class="inline-block bg-blue-100 text-blue-700 text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full mb-4">
             Produk Kami
@@ -190,7 +200,7 @@
 
           <h2 class="text-3xl lg:text-4xl font-extrabold text-brand-dark tracking-tight mb-3">Ringlock Standard</h2>
           <p class="text-gray-500 text-[14px] leading-relaxed mb-6">
-            Komponen dasar dengan presisi tinggi &amp; komponen vertikal dari rangkaian scaffolding ringlock system.
+            Komponen dasar dengan presisi tinggi & komponen vertikal dari rangkaian scaffolding ringlock system.
           </p>
           
           <div class="space-y-0 border border-gray-100 rounded-xl overflow-hidden mb-6">
@@ -208,14 +218,6 @@
             </div>
           </div>
 
-          <!-- <div class="flex flex-wrap gap-3 mb-8">
-            <a href="#" class="inline-flex items-center justify-center bg-brand-dark text-white font-bold text-[14px] px-6 py-3 rounded-lg transition-colors duration-200 shadow-md">
-              Masukkan Keranjang
-            </a>
-            <a href="#contact" class="inline-flex items-center justify-center text-brand-dark font-bold text-[14px] px-6 py-3 rounded-lg hover:bg-gray-50 transition-all duration-200">
-              Hubungi Kami
-            </a>
-          </div> -->
           <div class="flex flex-wrap gap-3 mb-8">
             <button
               id="btn-add-vertical"
@@ -246,21 +248,18 @@
               </div>
               <span class="text-[12px] font-bold text-gray-500 group-hover:text-blue-600 mt-2 variant-txt">0.5 m</span>
             </div>
-
             <div class="variant-btn flex flex-col items-center cursor-pointer group" data-ukuran="1 m" data-gambar="assets/vertical1m.svg">
               <div class="bg-white border-2 border-transparent group-hover:border-blue-500 rounded-lg p-2 shadow-sm transition-all duration-200">
                 <img src="assets/vertical1m.svg" alt="Ringlock 1 m" class="w-full h-auto object-contain aspect-square variant-img">
               </div>
               <span class="text-[12px] font-bold text-gray-500 group-hover:text-blue-600 mt-2 variant-txt">1 m</span>
             </div>
-
             <div class="variant-btn flex flex-col items-center cursor-pointer group" data-ukuran="2 m" data-gambar="assets/vertical2m.svg">
               <div class="bg-white border-2 border-transparent group-hover:border-blue-500 rounded-lg p-2 shadow-sm transition-all duration-200">
                 <img src="assets/vertical2m.svg" alt="Ringlock 2 m" class="w-full h-auto object-contain aspect-square variant-img">
               </div>
               <span class="text-[12px] font-bold text-gray-500 group-hover:text-blue-600 mt-2 variant-txt">2 m</span>
             </div>
-
             <div class="variant-btn flex flex-col items-center cursor-pointer group" data-ukuran="2.5 m" data-gambar="assets/vertical2.5m.svg">
               <div class="bg-white border-2 border-transparent group-hover:border-blue-500 rounded-lg p-2 shadow-sm transition-all duration-200">
                 <img src="assets/vertical2.5m.svg" alt="Ringlock 2.5 m" class="w-full h-auto object-contain aspect-square variant-img">
@@ -268,7 +267,6 @@
               <span class="text-[12px] font-bold text-gray-500 group-hover:text-blue-600 mt-2 variant-txt">2.5 m</span>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -276,20 +274,13 @@
 </section>
 
 
-<!-- =============================================
-     MODUL HORIZONTAL RINGLOCK
-     layout: image panel kiri, spec card kanan
-     ============================================= -->
 <section id="horizontal" class="bg-white py-16 lg:py-24">
   <div class="max-w-7xl mx-auto px-5 lg:px-8">
-
     <div class="text-center mb-10">
       <h2 class="text-2xl lg:text-3xl font-extrabold text-brand-dark tracking-tight">Modul Horizontal Ringlock</h2>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-      <!-- Col Kiri: Image Panel -->
       <div class="bg-white rounded-3xl shadow-xl border border-gray-100 relative overflow-hidden min-h-[450px] lg:h-full p-4 lg:p-5 flex items-center justify-center">
         <img
           id="main-ledger-img"
@@ -298,15 +289,11 @@
           class="w-full h-full object-contain transition-opacity duration-300"
         />
       </div>
-
-      <!-- Col Kanan: Spec Card -->
       <div class="bg-white rounded-3xl shadow-xl p-8 lg:p-12 flex flex-col justify-between border border-gray-100">
         <div>
           <span class="inline-block bg-blue-100 text-blue-700 text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full mb-4">
             Produk Kami
           </span>
-
-          <!-- Nama produk — dibaca JS lewat ID -->
           <h3 id="ledger-title" class="text-3xl lg:text-4xl font-extrabold text-brand-dark tracking-tight mb-3">Ringlock Ledger</h3>
           <p class="text-gray-500 text-[14px] leading-relaxed mb-6">
             Komponen horizontal dari rangkaian scaffolding ringlock system yang berfungsi sebagai penghubung antar tiang vertikal (standards).
@@ -315,7 +302,6 @@
           <div class="space-y-0 border border-gray-100 rounded-xl overflow-hidden mb-6">
             <div class="spec-row flex items-center justify-between px-4 py-3.5 bg-gray-50/60 border-b border-gray-100">
               <span class="text-[13px] font-medium text-gray-500">Panjang Horizontal</span>
-              <!-- ID ini dibaca JS saat "Masukkan Keranjang" diklik -->
               <span id="panjang-ledger-aktif" class="text-[14px] font-bold text-brand-dark">1.5 m</span>
             </div>
             <div class="spec-row flex items-center justify-between px-4 py-3.5 border-b border-gray-100">
@@ -329,7 +315,6 @@
           </div>
 
           <div class="flex flex-wrap gap-3 mb-8">
-            <!-- Tombol Masukkan Keranjang — Horizontal/Ledger -->
             <button
               id="btn-add-ledger"
               class="add-to-cart-btn inline-flex items-center justify-center gap-2 bg-brand-dark hover:bg-blue-900 text-white font-bold text-[14px] px-6 py-3 rounded-lg transition-colors duration-200 shadow-md"
@@ -345,7 +330,6 @@
           </div>
         </div>
 
-        <!-- Variant selector -->
         <div class="border-t border-gray-100 pt-6">
           <div class="text-center mb-5">
             <span class="bg-blue-100 text-blue-700 text-[11px] font-bold tracking-widest uppercase px-4 py-1 rounded-md">
@@ -380,29 +364,19 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </section>
 
 
-<!-- =============================================
-     PRODUK LAINNYA — Grid 3 kolom, 9 cards
-     Setiap card punya tombol "Masukkan Keranjang"
-     dengan class .other-cart-btn — nama produk diambil
-     dari h4.card-title di dalam card yang sama.
-     ============================================= -->
 <section id="lainnya" class="bg-brand-bg py-16 lg:py-24">
   <div class="max-w-7xl mx-auto px-5 lg:px-8">
- 
     <div class="text-center mb-12">
       <h2 class="text-2xl lg:text-3xl font-extrabold text-brand-dark tracking-tight">Produk Lainnya</h2>
       <p class="text-gray-500 text-[14px] mt-2 max-w-2xl mx-auto">Komponen lengkap sistem scaffolding Ringlock untuk berbagai kebutuhan konstruksi.</p>
     </div>
  
     <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-5">
- 
-      <!-- CARD: Diagonal Brace -->
       <div class="other-card bg-white rounded-2xl overflow-hidden shadow-md group flex flex-col">
         <div class="bg-gradient-to-br from-brand-light/60 to-blue-50 flex flex-col items-center min-h-[200px] w-full overflow-hidden">
           <div class="w-full h-full flex-1 flex items-center justify-center">
@@ -422,7 +396,6 @@
         </div>
       </div>
  
-      <!-- CARD: Ringlock Catwalk -->
       <div class="other-card bg-white rounded-2xl overflow-hidden shadow-md group flex flex-col">
         <div class="bg-gradient-to-br from-brand-light/60 to-blue-50 flex flex-col items-center min-h-[200px] w-full overflow-hidden">
           <div class="w-full h-full flex-1 flex items-center justify-center">
@@ -442,7 +415,6 @@
         </div>
       </div>
 
-      <!-- CARD: Ringlock Ringself -->
       <div class="other-card bg-white rounded-2xl overflow-hidden shadow-md group flex flex-col">
         <div class="bg-gradient-to-br from-brand-light/60 to-blue-50 flex flex-col items-center min-h-[200px] w-full overflow-hidden">
           <div class="w-full h-full flex-1 flex items-center justify-center">
@@ -459,7 +431,6 @@
         </div>
       </div>
 
-      <!-- CARD: Jackbase M38 -->
       <div class="other-card bg-white rounded-2xl overflow-hidden shadow-md group flex flex-col">
         <div class="bg-gradient-to-br from-brand-light/60 to-blue-50 flex flex-col items-center min-h-[200px] w-full overflow-hidden">
           <div class="w-full h-full flex-1 flex items-center justify-center">
@@ -476,7 +447,6 @@
         </div>
       </div>
 
-      <!-- CARD: Uhead M38 -->
       <div class="other-card bg-white rounded-2xl overflow-hidden shadow-md group flex flex-col">
         <div class="bg-gradient-to-br from-brand-light/60 to-blue-50 flex flex-col items-center min-h-[200px] w-full overflow-hidden">
           <div class="w-full h-full flex-1 flex items-center justify-center">
@@ -493,7 +463,6 @@
         </div>
       </div>
 
-      <!-- CARD: Ringlock Wedge -->
       <div class="other-card bg-white rounded-2xl overflow-hidden shadow-md group flex flex-col">
         <div class="bg-gradient-to-br from-brand-light/60 to-blue-50 flex flex-col items-center min-h-[200px] w-full overflow-hidden">
           <div class="w-full h-full flex-1 flex items-center justify-center">
@@ -510,7 +479,6 @@
         </div>
       </div>
 
-      <!-- CARD: Ringlock Stair -->
       <div class="other-card bg-white rounded-2xl overflow-hidden shadow-md group flex flex-col">
         <div class="bg-gradient-to-br from-brand-light/60 to-blue-50 flex flex-col items-center min-h-[200px] w-full overflow-hidden">
           <div class="w-full h-full flex-1 flex items-center justify-center">
@@ -527,7 +495,6 @@
         </div>
       </div>
 
-      <!-- CARD: Ringlock Diagonal Brace Head -->
       <div class="other-card bg-white rounded-2xl overflow-hidden shadow-md group flex flex-col">
         <div class="bg-gradient-to-br from-brand-light/60 to-blue-50 flex flex-col items-center min-h-[200px] w-full overflow-hidden">
           <div class="w-full h-full flex-1 flex items-center justify-center">
@@ -539,12 +506,11 @@
           <p class="text-blue-200/70 text-[12px] mb-4 leading-relaxed">Penghubung Diagonal Brace Dengan Ring</p>
           <button class="other-cart-btn inline-flex items-center justify-center gap-2 border-2 border-white/20 hover:border-white bg-white/5 hover:bg-white text-white hover:text-brand-dark font-bold text-[13px] px-5 py-2.5 rounded-xl transition-all duration-200 mt-auto">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 9h12.6M9 22a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
-            Masukkan Keranjang
+            Penghubung Diagonal Brace Dengan Ring
           </button>
         </div>
       </div>
 
-      <!-- CARD: Ringlock Ledger Head -->
       <div class="other-card bg-white rounded-2xl overflow-hidden shadow-md group flex flex-col">
         <div class="bg-gradient-to-br from-brand-light/60 to-blue-50 flex flex-col items-center min-h-[200px] w-full overflow-hidden">
           <div class="w-full h-full flex-1 flex items-center justify-center">
@@ -560,74 +526,43 @@
           </button>
         </div>
       </div>
-
     </div>
   </div>
 </section>
 
 
-<!-- =============================================
-     CTA / CONTACT STRIP
-     ============================================= -->
 <section id="contact" class="bg-brand-light py-16 lg:py-20">
   <div class="max-w-7xl mx-auto px-5 lg:px-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-      
-      <!-- Kolom Kiri: Teks CTA & Tombol Kontak -->
       <div class="text-center lg:text-left">
-        <span class="inline-block bg-blue-100 text-blue-700 text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full mb-4">
-          Hubungi Kami
-        </span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-brand-dark mb-4 tracking-tight leading-tight">
-          Siap Mulai Proyek Anda Bersama Kami?
-        </h2>
-        <p class="text-gray-600 text-[15px] leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0">
-          Dapatkan penawaran harga terbaik dan konsultasikan kebutuhan scaffolding Ringlock Anda langsung dengan tim ahli kami.
-        </p>
+        <span class="inline-block bg-blue-100 text-blue-700 text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full mb-4">Hubungi Kami</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-brand-dark mb-4 tracking-tight leading-tight">Siap Mulai Proyek Anda Bersama Kami?</h2>
+        <p class="text-gray-600 text-[15px] leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0">Dapatkan penawaran harga terbaik dan konsultasikan kebutuhan scaffolding Ringlock Anda langsung dengan tim ahli kami.</p>
         <div class="flex flex-wrap gap-3 justify-center lg:justify-start">
-          <!-- Tombol WA -->
           <a href="https://wa.me/628123651717?text=halo%20ringlock%20indonesia%20jabodetabek,%20buatkan%20saya%20penawaran%20terbaik" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold text-[14px] px-7 py-3.5 rounded-xl transition-colors duration-200 shadow-md">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             Chat WhatsApp
           </a>
-          <!-- Tombol Email -->
           <a href="mailto:tanggamasjayamakmur@yahoo.com?subject=Tanya%20Harga%20Ringlock%20Scaffolding" class="inline-flex items-center gap-2 bg-brand-dark hover:bg-blue-900 text-white font-semibold text-[14px] px-7 py-3.5 rounded-xl transition-colors duration-200 shadow-md">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"/></svg>
             Kirim Email
           </a>
         </div>
       </div>
-
-      <!-- Kolom Kanan: Google Maps Embed (Legok, Tangerang) -->
       <div class="w-full h-[280px] sm:h-[350px] rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-        <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.55094188279!2d106.5433806746619!3d-6.322558761867301!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e3f7ef24f297%3A0xe6a41e7a6394f94a!2sRINGLOCK%20INDONESIA%20-%20Pusat%20Scaffolding%20Jabodetabek!5e0!3m2!1sen!2sid!4v1782111812257!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-          class="w-full h-full rounded-2xl border-0"
-          allowfullscreen="" 
-          loading="lazy" 
-          referrerpolicy="no-referrer-when-downgrade"
-          title="Lokasi Kantor Ringlock Indonesia">
-        </iframe>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.55094188279!2d106.5433806746619!3d-6.322558761867301!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e3f7ef24f297%3A0xe6a41e7a6394f94a!2sRINGLOCK%20INDONESIA%20-%20Pusat%20Scaffolding%20Jabodetabek!5e0!3m2!1sen!2sid!4v1782111812257!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="w-full h-full rounded-2xl border-0" title="Lokasi Kantor Ringlock Indonesia"></iframe>
       </div>
-
     </div>
   </div>
 </section>
 
 
-<!-- =============================================
-     FOOTER
-     ============================================= -->
 <footer class="bg-brand-dark text-white">
   <div class="max-w-7xl mx-auto px-5 lg:px-8 py-14 lg:py-16">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
       <div class="max-w-sm">
         <div class="flex items-center gap-2 mb-5">
-          <img 
-            src="./assets/logoringlockwihte.svg" 
-            alt="Ringlock Indonesia" 
-            class="h-10 w-auto object-contain"
-          />
+          <img src="./assets/logoringlockwihte.svg" alt="Ringlock Indonesia" class="h-10 w-auto object-contain" />
         </div>
         <p class="text-blue-100/80 text-[15px] font-semibold leading-snug mb-6">Bangun Lebih Aman, Lebih Cepat dengan Ringlock Indonesia.</p>
         <ul class="space-y-3">
@@ -649,7 +584,7 @@
             <li><a href="{{ url('/tentang') }}"class="text-blue-200/70 font-semibold hover:text-white text-[13px] ">Tentang Kami</a></li>
             <li><a href="{{ url('/produk') }}" class="text-white font-semibold text-[13px] transition-colors">Produk Scaffolding</a></li>
             <li><a href="{{ route('artikel.index') }}" class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Artikel</a></li>
-            <li><a href="#contact"    class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Kontak</a></li>
+            <li><a href="#contact" class="text-blue-200/70 hover:text-white text-[13px] transition-colors">Kontak</a></li>
           </ul>
         </div>
         <div>
@@ -663,14 +598,6 @@
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
               <span class="text-[13px]">Facebook</span>
             </a>
-            <!-- <a href="#" aria-label="LinkedIn" class="flex items-center gap-2.5 text-blue-200/70 hover:text-white transition-colors">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-              <span class="text-[13px]">LinkedIn</span>
-            </a>
-            <a href="#" aria-label="YouTube" class="flex items-center gap-2.5 text-blue-200/70 hover:text-white transition-colors">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
-              <span class="text-[13px]">YouTube</span>
-            </a> -->
           </div>
         </div>
       </div>
@@ -686,13 +613,10 @@
   </div>
 </footer>
 
-<!-- Overlay gelap di belakang drawer -->
+
 <div id="cart-overlay" class="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm"></div>
 
-<!-- Cart Drawer — slide dari kanan -->
 <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-sm bg-white z-50 shadow-2xl flex flex-col">
-
-  <!-- Drawer Header -->
   <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-brand-dark text-white shrink-0">
     <div class="flex items-center gap-3">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -708,71 +632,204 @@
     </button>
   </div>
 
-  <!-- Drawer Body: Cart item list -->
   <div id="cart-body" class="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-    <!-- Diisi dinamis oleh JS (updateCartUI) -->
   </div>
 
-  <!-- Drawer Footer: WA checkout button -->
   <div class="px-5 py-4 border-t border-gray-100 bg-gray-50 shrink-0">
-    <!-- Empty state hint -->
     <p id="cart-empty-hint" class="text-center text-gray-400 text-[13px] mb-3 hidden">
       Belum ada produk dipilih.
     </p>
-    <button id="wa-checkout-btn"
-      class="w-full inline-flex items-center justify-center gap-2.5 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-[14px] px-6 py-3.5 rounded-xl transition-colors duration-200 shadow-md">
-      <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-      </svg>
-      Kirim Permintaan via WhatsApp
-    </button>
+
+    <a href="javascript:void(0)" id="wa-checkout-btn"
+      class="w-full inline-flex items-center justify-center gap-2.5 bg-brand-dark hover:bg-blue-900 text-white font-bold text-[14px] px-6 py-3.5 rounded-xl transition-colors duration-200 shadow-md">
+      Lanjutkan Pembayaran
+    </a>
   </div>
 </div>
 
-<!-- Floating Cart Button -->
+
 <button id="cart-fab"
   class="fixed bottom-6 right-6 z-40 w-14 h-14 bg-brand-dark hover:bg-blue-900 text-white rounded-full shadow-xl flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-brand-dark/30"
   aria-label="Buka keranjang belanja">
   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 9h12.6M9 22a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/>
   </svg>
-  <!-- Badge -->
-  <span id="cart-badge"
-    class="hidden absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[11px] font-extrabold rounded-full flex items-center justify-center leading-none">
-    0
-  </span>
+  <span id="cart-badge" class="hidden absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[11px] font-extrabold rounded-full flex items-center justify-center leading-none">0</span>
 </button>
 
-<!-- =============================================
-     VARIANT PICKER MODAL
-     Muncul saat tombol "Pilih Ukuran" diklik pada
-     produk yang memiliki data-has-variants="true".
-     Dikendalikan sepenuhnya oleh cart.js.
-     ============================================= -->
- 
-<!-- Modal backdrop -->
-<div id="vp-backdrop"
-  class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
-  style="display:none!important">
-</div>
- 
-<!-- Modal panel (diisi dinamis oleh JS) -->
-<div id="vp-modal"
-  class="fixed z-[70] bottom-0 sm:bottom-auto sm:top-1/2 left-0 right-0 sm:left-1/2
-         sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-sm w-full
-         bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl
-         transition-transform duration-300 ease-out"
-  style="display:none!important"
-  role="dialog" aria-modal="true" aria-labelledby="vp-title">
-</div>
+<div id="vp-backdrop" class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4" style="display:none!important"></div>
+<div id="vp-modal" class="fixed z-[70] bottom-0 sm:bottom-auto sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-sm w-full bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl transition-transform duration-300 ease-out" style="display:none!important" role="dialog" aria-modal="true" aria-labelledby="vp-title"></div>
 
-
-<!-- =============================================
-     SCRIPTS
-     Urutan: main.js (navbar/menu) → cart.js (cart logic)
-     ============================================= -->
 <script src="main.js"></script>
-<script src="cart.js"></script>
+<script src="{{ asset('cart.js') }}"></script>
+
+<div id="authModal" class="fixed inset-0 z-[80] flex items-center justify-center p-5 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleAuthModal()"></div>
+    
+    <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 border border-gray-100 z-10 animate-in fade-in zoom-in-95 duration-200">
+        <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+
+        <div id="loginPanel">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-extrabold text-[rgb(0,35,111)]">Selamat Datang Kembali</h2>
+                <p class="text-gray-500 text-xs mt-1">Masuk untuk melanjutkan pembelian komponen scaffolding Anda.</p>
+            </div>
+
+            @if($errors->has('auth_error'))
+                <div class="bg-red-50 text-red-600 text-xs p-3 rounded-xl mb-4 font-semibold">
+                    {{ $errors->first('auth_error') }}
+                </div>
+            @endif
+
+            <form action="{{ route('customer.login') }}" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Alamat Email</label>
+                    <input type="email" name="email" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="nama@email.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Password</label>
+                    <input type="password" name="password" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="Masukkan password">
+                </div>
+                <button type="submit" class="w-full bg-[rgb(0,35,111)] hover:bg-blue-900 text-white font-semibold py-3 rounded-xl transition-colors text-sm shadow-md mt-2">
+                    Masuk Sekarang
+                </button>
+            </form>
+
+            <div class="text-center mt-6 pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-500">Belum mempunyai akun? <button onclick="switchPanel('register')" class="text-[rgb(0,35,111)] font-bold hover:underline">Daftar sekarang</button></p>
+            </div>
+        </div>
+
+        <div id="registerPanel" class="hidden">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-extrabold text-[rgb(0,35,111)]">Mulai Buat Akun</h2>
+                <p class="text-gray-500 text-xs mt-1">Daftar cepat untuk mengaktifkan fitur checkout & pelacakan pesanan.</p>
+            </div>
+
+            <form action="{{ route('customer.register') }}" method="POST" class="space-y-3">
+                @csrf
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Nama Lengkap</label>
+                    <input type="text" name="name" required class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="Contoh: Budi Santoso">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Alamat Email</label>
+                    <input type="email" name="email" required class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="nama@email.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Nomor WhatsApp</label>
+                    <input type="text" name="phone_number" required class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="Contoh: 08123456789">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Password</label>
+                    <input type="password" name="password" required class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="Minimal 8 karakter">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Konfirmasi Password</label>
+                    <input type="password" name="password_confirmation" required class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="Ketik ulang password">
+                </div>
+                <button type="submit" class="w-full bg-[rgb(0,35,111)] hover:bg-blue-900 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm shadow-md mt-2">
+                    Daftar Akun Baru
+                </button>
+            </form>
+
+            <div class="text-center mt-6 pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-500">Sudah memiliki akun? <button onclick="switchPanel('login')" class="text-[rgb(0,35,111)] font-bold hover:underline">Masuk di sini</button></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================================================
+    // KONTROL NAVBAR PROFILE DROPDOWN
+    // ==========================================================================
+    function toggleProfileDropdown() {
+        const dropdown = document.getElementById('profile-dropdown');
+        if (dropdown) {
+            dropdown.classList.toggle('hidden');
+        }
+    }
+
+    document.addEventListener('click', function(event) {
+        const wrapper = document.getElementById('profile-dropdown-wrapper');
+        const dropdown = document.getElementById('profile-dropdown');
+        
+        if (wrapper && dropdown && !wrapper.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    function toggleAuthModal() {
+        const modal = document.getElementById('authModal');
+        modal.classList.toggle('hidden');
+    }
+
+    function switchPanel(panel) {
+        const loginPanel = document.getElementById('loginPanel');
+        const registerPanel = document.getElementById('registerPanel');
+        
+        if (panel === 'register') {
+            loginPanel.classList.add('hidden');
+            registerPanel.classList.remove('hidden');
+        } else {
+            registerPanel.classList.add('hidden');
+            loginPanel.classList.remove('hidden');
+        }
+    }
+
+    function tutupKeranjangDanBukaAuth() {
+        const drawer = document.getElementById('cart-drawer');
+        const overlay = document.getElementById('cart-overlay');
+        if (drawer && overlay) {
+            drawer.classList.remove('open');
+            overlay.classList.remove('open');
+        }
+
+        const modalAuth = document.getElementById('authModal');
+        if (modalAuth) {
+            modalAuth.classList.remove('hidden');
+        }
+    }
+
+    // ==========================================================================
+    // MUTILASI PERINTAH: Mematikan Total Fungsi sendToWhatsApp Dari cart.js
+    // ==========================================================================
+    document.addEventListener("DOMContentLoaded", function() {
+        const oldBtn = document.getElementById('wa-checkout-btn');
+        
+        if (oldBtn) {
+            const newBtn = oldBtn.cloneNode(true);
+            oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+            
+            newBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (this.hasAttribute('disabled') || this.classList.contains('disabled')) {
+                    return false;
+                }
+
+                @auth
+                    window.location.href = "{{ url('/checkout') }}";
+                @else
+                    tutupKeranjangDanBukaAuth();
+                @endauth
+            });
+        }
+    });
+</script>
+
+@if(session('open_auth_modal'))
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        toggleAuthModal();
+    });
+</script>
+@endif
 
 </body>
 </html>

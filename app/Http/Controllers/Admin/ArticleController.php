@@ -35,7 +35,7 @@ class ArticleController extends Controller
             'category' => 'required|in:edukasi-k3,proyek,instalasi',
             'excerpt' => 'required|max:500',
             'body' => 'required',
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048', // Maksimal 2MB
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,svg', // Maksimal 2MB
         ]);
     // 2. Proses Pengunggahan Gambar Thumbnail
         $imagePath = null;

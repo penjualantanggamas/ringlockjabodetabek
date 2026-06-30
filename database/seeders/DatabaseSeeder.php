@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         User::create([
         'name' => 'Admin Ringlock',
         'email' => 'admin@ringlock.id',
-        'password' => Hash::make('password123'), // Password dienkripsi demi keamanan
+        'password' => Hash::make('admin123'), // Password dienkripsi demi keamanan
     ]);
 
     $this->call([
