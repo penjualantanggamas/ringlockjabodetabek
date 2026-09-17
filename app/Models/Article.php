@@ -6,13 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
 {
-    // Mendaftarkan semua kolom yang diizinkan untuk diinput oleh admin
     protected $fillable = [
         'title',
+        'prefix',
         'slug',
         'category',
         'thumbnail',
         'excerpt',
-        'body'
+        'body',
+        'faqs',
+        'meta_title',
+        'meta_author',
+        'meta_keywords',
+        'meta_description',
+    ];
+
+    protected $casts = [
+        'faqs' => 'array',
     ];
 }

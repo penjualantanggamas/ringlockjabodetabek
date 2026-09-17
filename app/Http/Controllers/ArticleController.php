@@ -7,22 +7,48 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    // Fungsi untuk menampilkan semua artikel di halaman utama blog
-    public function index()
+    /**
+     * Menampilkan daftar artikel di halaman publik blog (+ data kategori dinamis)
+     */
+    public function index(Request $request)
     {
-        // Mengambil semua data artikel dari database, diurutkan dari yang terbaru
-        $articles = Article::latest()->get();
+        $query = Article::latest();
 
-        // Mengirim data artikel ke file view 'homeartikel.blade.php'
-        return view('homeartikel', compact('articles'));
+        // Filter jika ada kategori yang dipilih
+        if ($request->has('category') && !empty($request->category)) {
+            $query->where('category', $request->category);
+        }
+
+        $articles = $query->get();
+
+        // Ambil daftar kategori unik dari tabel articles
+        $categories = Article::select('category')
+            ->whereNotNull('category')
+            ->distinct()
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'slug' => $item->category,
+                    'name' => ucwords(str_replace('-', ' ', $item->category))
+                ];
+            });
+
+        // Pastikan $categories dan $articles dikirim bersamaan ke view
+        return view('homeartikel', compact('articles', 'categories'));
     }
 
-    // Fungsi untuk menampilkan isi satu artikel secara utuh (Halaman Detail)
+    /**
+     * Menampilkan isi detail satu artikel
+     */
     public function show($slug)
     {
-        // Mencari artikel berdasarkan slug URL-nya, jika tidak ada akan memunculkan error 404
         $article = Article::where('slug', $slug)->firstOrFail();
 
-        return view('detailartikel', compact('article'));
+        $relatedArticles = Article::where('category', $article->category)
+            ->where('id', '!=', $article->id)
+            ->take(3)
+            ->get();
+
+        return view('detailartikel', compact('article', 'relatedArticles'));
     }
 }

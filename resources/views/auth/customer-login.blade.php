@@ -13,7 +13,7 @@
             <p class="text-gray-500 text-sm mt-1">Masuk untuk melihat histori order dan melakukan checkout.</p>
         </div>
 
-        <form action="{{ url('/login') }}" method="POST" class="space-y-4">
+        <form action="{{ route('customer.login') }}" method="POST" class="space-y-4">
             @csrf
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Alamat Email</label>
@@ -32,7 +32,7 @@
         </form>
 
         <div class="text-center mt-6 pt-4 border-t border-gray-100">
-            <p class="text-sm text-gray-500">Belum mempunyai akun? <a href="{{ url('/register') }}" class="text-[rgb(0,35,111)] font-bold hover:underline">Daftar sekarang</a></p>
+            <p class="text-sm text-gray-500">Belum mempunyai akun? <a href="{{ route('customer.register.form') }}" class="text-[rgb(0,35,111)] font-bold hover:underline">Daftar sekarang</a></p>
         </div>
     </div>
 </body>

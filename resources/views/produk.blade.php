@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Produk Scaffolding — Ringlock Indonesia</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -94,6 +95,18 @@
     .btn-added {
       background-color: #16a34a !important;
       color: #fff !important;
+    }
+
+    /* Menghilangkan panah naik-turun bawaan browser di Chrome, Safari, Edge, dan Opera */
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* Menghilangkan panah naik-turun bawaan browser di Firefox */
+    .qty-input[type=number] {
+      -moz-appearance: textfield;
     }
   </style>
 </head>
@@ -387,11 +400,12 @@
           <h4 class="card-title font-extrabold text-[16px] mb-1">Diagonal Brace</h4>
           <p class="text-blue-200/70 text-[12px] mb-4 leading-relaxed">0.9x1.5m | 1.2x1.5m | 1.5x1.5m | 1.8x1.5m</p>
           <button
-            class="other-cart-btn inline-flex items-center justify-center gap-2 border-2 border-white/20 hover:border-white bg-white/5 hover:bg-white text-white hover:text-brand-dark font-bold text-[13px] px-5 py-2.5 rounded-xl transition-all duration-200 mt-auto"
-            data-has-variants="true"
-            data-variants='["Diagonal 0.9×1.5 m","Diagonal 1.2×1.5 m","Diagonal 1.5×1.5 m","Diagonal 1.8×1.5 m"]'>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 9h12.6M9 22a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
-            Pilih Ukuran
+              class="other-cart-btn inline-flex items-center justify-center gap-2 border-2 border-white/20 hover:border-white bg-white/5 hover:bg-white text-white hover:text-brand-dark font-bold text-[13px] px-5 py-2.5 rounded-xl transition-all duration-200 mt-auto"
+              data-name="Diagonal Brace"
+              data-has-variants="true"
+              data-variants='["Diagonal 0.9×1.5 m","Diagonal 1.2×1.5 m","Diagonal 1.5×1.5 m","Diagonal 1.8×1.5 m"]'>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 9h12.6M9 22a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
+              Pilih Ukuran
           </button>
         </div>
       </div>
@@ -406,11 +420,12 @@
           <h4 class="card-title font-extrabold text-[16px] mb-1">Ringlock Catwalk</h4>
           <p class="text-blue-200/70 text-[12px] mb-4 leading-relaxed">0.9m | 1.2m | 1.5m | 1.8m</p>
           <button
-            class="other-cart-btn inline-flex items-center justify-center gap-2 border-2 border-white/20 hover:border-white bg-white/5 hover:bg-white text-white hover:text-brand-dark font-bold text-[13px] px-5 py-2.5 rounded-xl transition-all duration-200 mt-auto"
-            data-has-variants="true"
-            data-variants='["Catwalk 0.9 m","Catwalk 1.2 m","Catwalk 1.5 m","Catwalk 1.8 m"]'>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 9h12.6M9 22a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
-            Pilih Ukuran
+              class="other-cart-btn inline-flex items-center justify-center gap-2 border-2 border-white/20 hover:border-white bg-white/5 hover:bg-white text-white hover:text-brand-dark font-bold text-[13px] px-5 py-2.5 rounded-xl transition-all duration-200 mt-auto"
+              data-name="Ringlock Catwalk"
+              data-has-variants="true"
+              data-variants='["Catwalk 0.9 m","Catwalk 1.2 m","Catwalk 1.5 m","Catwalk 1.8 m"]'>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 9h12.6M9 22a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
+              Pilih Ukuran
           </button>
         </div>
       </div>
@@ -506,7 +521,7 @@
           <p class="text-blue-200/70 text-[12px] mb-4 leading-relaxed">Penghubung Diagonal Brace Dengan Ring</p>
           <button class="other-cart-btn inline-flex items-center justify-center gap-2 border-2 border-white/20 hover:border-white bg-white/5 hover:bg-white text-white hover:text-brand-dark font-bold text-[13px] px-5 py-2.5 rounded-xl transition-all duration-200 mt-auto">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 9h12.6M9 22a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
-            Penghubung Diagonal Brace Dengan Ring
+            Masukkan Keranjang
           </button>
         </div>
       </div>
@@ -640,9 +655,9 @@
       Belum ada produk dipilih.
     </p>
 
-    <a href="javascript:void(0)" id="wa-checkout-btn"
-      class="w-full inline-flex items-center justify-center gap-2.5 bg-brand-dark hover:bg-blue-900 text-white font-bold text-[14px] px-6 py-3.5 rounded-xl transition-colors duration-200 shadow-md">
-      Lanjutkan Pembayaran
+    <a href="{{ route('checkout.index') }}" id="wa-checkout-btn"
+   class="w-full inline-flex items-center justify-center gap-2.5 bg-brand-dark hover:bg-blue-900 text-white font-bold text-[14px] px-6 py-3.5 rounded-xl transition-colors duration-200 shadow-md">
+   Lanjutkan Pembayaran
     </a>
   </div>
 </div>
@@ -663,85 +678,6 @@
 <script src="main.js"></script>
 <script src="{{ asset('cart.js') }}"></script>
 
-<div id="authModal" class="fixed inset-0 z-[80] flex items-center justify-center p-5 hidden">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleAuthModal()"></div>
-    
-    <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 border border-gray-100 z-10 animate-in fade-in zoom-in-95 duration-200">
-        <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-
-        <div id="loginPanel">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-extrabold text-[rgb(0,35,111)]">Selamat Datang Kembali</h2>
-                <p class="text-gray-500 text-xs mt-1">Masuk untuk melanjutkan pembelian komponen scaffolding Anda.</p>
-            </div>
-
-            @if($errors->has('auth_error'))
-                <div class="bg-red-50 text-red-600 text-xs p-3 rounded-xl mb-4 font-semibold">
-                    {{ $errors->first('auth_error') }}
-                </div>
-            @endif
-
-            <form action="{{ route('customer.login') }}" method="POST" class="space-y-4">
-                @csrf
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Alamat Email</label>
-                    <input type="email" name="email" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="nama@email.com">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="Masukkan password">
-                </div>
-                <button type="submit" class="w-full bg-[rgb(0,35,111)] hover:bg-blue-900 text-white font-semibold py-3 rounded-xl transition-colors text-sm shadow-md mt-2">
-                    Masuk Sekarang
-                </button>
-            </form>
-
-            <div class="text-center mt-6 pt-4 border-t border-gray-100">
-                <p class="text-xs text-gray-500">Belum mempunyai akun? <button onclick="switchPanel('register')" class="text-[rgb(0,35,111)] font-bold hover:underline">Daftar sekarang</button></p>
-            </div>
-        </div>
-
-        <div id="registerPanel" class="hidden">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-extrabold text-[rgb(0,35,111)]">Mulai Buat Akun</h2>
-                <p class="text-gray-500 text-xs mt-1">Daftar cepat untuk mengaktifkan fitur checkout & pelacakan pesanan.</p>
-            </div>
-
-            <form action="{{ route('customer.register') }}" method="POST" class="space-y-3">
-                @csrf
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Nama Lengkap</label>
-                    <input type="text" name="name" required class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="Contoh: Budi Santoso">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Alamat Email</label>
-                    <input type="email" name="email" required class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="nama@email.com">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Nomor WhatsApp</label>
-                    <input type="text" name="phone_number" required class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="Contoh: 08123456789">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="Minimal 8 karakter">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Konfirmasi Password</label>
-                    <input type="password" name="password_confirmation" required class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(0,35,111)]/20 focus:border-[rgb(0,35,111)]" placeholder="Ketik ulang password">
-                </div>
-                <button type="submit" class="w-full bg-[rgb(0,35,111)] hover:bg-blue-900 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm shadow-md mt-2">
-                    Daftar Akun Baru
-                </button>
-            </form>
-
-            <div class="text-center mt-6 pt-4 border-t border-gray-100">
-                <p class="text-xs text-gray-500">Sudah memiliki akun? <button onclick="switchPanel('login')" class="text-[rgb(0,35,111)] font-bold hover:underline">Masuk di sini</button></p>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
     // ==========================================================================
@@ -763,73 +699,36 @@
         }
     });
 
-    function toggleAuthModal() {
-        const modal = document.getElementById('authModal');
-        modal.classList.toggle('hidden');
-    }
-
-    function switchPanel(panel) {
-        const loginPanel = document.getElementById('loginPanel');
-        const registerPanel = document.getElementById('registerPanel');
-        
-        if (panel === 'register') {
-            loginPanel.classList.add('hidden');
-            registerPanel.classList.remove('hidden');
-        } else {
-            registerPanel.classList.add('hidden');
-            loginPanel.classList.remove('hidden');
-        }
-    }
-
-    function tutupKeranjangDanBukaAuth() {
-        const drawer = document.getElementById('cart-drawer');
-        const overlay = document.getElementById('cart-overlay');
-        if (drawer && overlay) {
-            drawer.classList.remove('open');
-            overlay.classList.remove('open');
-        }
-
-        const modalAuth = document.getElementById('authModal');
-        if (modalAuth) {
-            modalAuth.classList.remove('hidden');
-        }
-    }
-
     // ==========================================================================
-    // MUTILASI PERINTAH: Mematikan Total Fungsi sendToWhatsApp Dari cart.js
+    // MANAGEMENT ROUTING CHECKOUT (DEDICATED PAGE REDIRECT)
     // ==========================================================================
-    document.addEventListener("DOMContentLoaded", function() {
-        const oldBtn = document.getElementById('wa-checkout-btn');
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     const checkOutBtn = document.getElementById('wa-checkout-btn');
         
-        if (oldBtn) {
-            const newBtn = oldBtn.cloneNode(true);
-            oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+    //     if (checkOutBtn) {
+    //         // Kloning tombol untuk membersihkan sisa listener bawaan dari cart.js lama
+    //         const newBtn = checkOutBtn.cloneNode(true);
+    //         checkOutBtn.parentNode.replaceChild(newBtn, checkOutBtn);
             
-            newBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                if (this.hasAttribute('disabled') || this.classList.contains('disabled')) {
-                    return false;
-                }
+    //         newBtn.addEventListener('click', function(e) {
+    //             if (this.hasAttribute('disabled') || this.classList.contains('disabled')) {
+    //                 e.preventDefault();
+    //                 return false;
+    //             }
 
-                @auth
-                    window.location.href = "{{ url('/checkout') }}";
-                @else
-                    tutupKeranjangDanBukaAuth();
-                @endauth
-            });
-        }
-    });
+    //             // Periksa apakah customer sudah terautentikasi login lewat Blade directive
+    //             @auth
+    //                 e.preventDefault();
+    //                 window.location.href = "{{ url('/checkout') }}";
+    //             @else
+    //                 // Jika BELUM login, paksa browser redirect langsung ke halaman login terpisah
+    //                 e.preventDefault();
+    //                 window.location.href = "{{ route('customer.login.form') }}";
+    //             @endauth
+    //         });
+    //     }
+    // });
 </script>
-
-@if(session('open_auth_modal'))
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        toggleAuthModal();
-    });
-</script>
-@endif
 
 </body>
 </html>

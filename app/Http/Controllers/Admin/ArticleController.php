@@ -4,122 +4,234 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ArticleController extends Controller
 {
-    /**
-     * Menampilkan tabel daftar semua artikel di panel admin.
-     */
     public function index()
     {
-        // Mengambil semua artikel, diurutkan dari yang paling baru dibuat
-        $articles = Article::latest()->get();
+        $articles = Article::latest()->paginate(15);
 
-        // Mengarahkan ke file view admin/articles/index.blade.php
         return view('admin.articles.index', compact('articles'));
     }
 
     public function create()
     {
-        return view('admin.articles.create');
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.articles.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
-        // 1. Validasi Input Form
-        $request->validate([
-            'title' => 'required|max:255',
-            'category' => 'required|in:edukasi-k3,proyek,instalasi',
-            'excerpt' => 'required|max:500',
-            'body' => 'required',
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,svg', // Maksimal 2MB
-        ]);
-    // 2. Proses Pengunggahan Gambar Thumbnail
-        $imagePath = null;
-        if ($request->hasFile('thumbnail')) {
-            // Menyimpan ke folder storage/app/public/articles
-            $imagePath = $request->file('thumbnail')->store('articles', 'public');
+        $validated = $this->validateArticle($request);
+
+        $prefix = Str::slug($validated['prefix']);
+        $manualSlug = ! empty($validated['slug']);
+        $slug = $manualSlug ? Str::slug($validated['slug']) : Str::slug($validated['title']);
+
+        if ($slug === '') {
+            $slug = 'artikel';
         }
 
-        // 3. Simpan Data ke Tabel Articles
+        if ($manualSlug) {
+            $exists = Article::where('prefix', $prefix)->where('slug', $slug)->exists();
+            if ($exists) {
+                throw ValidationException::withMessages([
+                    'slug' => 'Kombinasi prefix + slug sudah digunakan artikel lain.',
+                ]);
+            }
+        } else {
+            $slug = $this->generateUniqueSlug($slug, $prefix);
+        }
+
+        $categorySlug = $this->resolveCategory($validated);
+        $thumbnailPath = $request->file('thumbnail')->store('articles/thumbnails', 'public');
+
         Article::create([
-            'title' => $request->title,
-            'slug' => Str::slug($request->title) . '-' . time(), // Mencegah duplikasi slug
-            'category' => $request->category,
-            'excerpt' => $request->excerpt,
-            'body' => $request->body,
-            'thumbnail' => $imagePath,
-        ]);
-    // 4. Alihkan kembali ke halaman tabel dengan notifikasi sukses
-        return redirect()->route('articles.index')->with('success', 'Artikel baru berhasil diterbitkan!');
-    }
-    /**
-     * Menampilkan halaman form edit artikel berdasarkan ID.
-     */
-    public function edit(string $id)
-    {
-        $article = Article::findOrFail($id);
-        return view('admin.articles.edit', compact('article'));
-    }
-
-    /**
-     * Memproses pembaruan data artikel ke database.
-     */
-    public function update(Request $request, string $id)
-    {
-        $article = Article::findOrFail($id);
-
-        // 1. Validasi Input Form (Thumbnail bersifat opsional saat edit)
-        $request->validate([
-            'title' => 'required|max:255',
-            'category' => 'required|in:edukasi-k3,proyek,instalasi',
-            'excerpt' => 'required|max:500',
-            'body' => 'required',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,svg', 
+            'title' => $validated['title'],
+            'prefix' => $prefix,
+            'slug' => $slug,
+            'category' => $categorySlug,
+            'thumbnail' => $thumbnailPath,
+            'excerpt' => $validated['excerpt'],
+            'body' => $validated['body'] ?? null,
+            'faqs' => $this->parseFaqs($request),
+            'meta_title' => $validated['meta_title'] ?? null,
+            'meta_author' => $validated['meta_author'] ?? 'PT. Tangga Mas Jaya Makmur',
+            'meta_keywords' => $validated['meta_keywords'] ?? null,
+            'meta_description' => $validated['meta_description'] ?? null,
         ]);
 
-        // 2. Cek apakah admin mengunggah gambar baru
-        $imagePath = $article->thumbnail; // Default pakai gambar lama
+        return redirect()
+            ->route('articles.index')
+            ->with('success', 'Artikel berhasil diterbitkan.');
+    }
+
+    public function edit(Article $article)
+    {
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.articles.edit', compact('article', 'categories'));
+    }
+
+    public function update(Request $request, Article $article)
+    {
+        // prefix & slug DIKUNCI setelah published — sengaja tidak divalidasi/diupdate
+        $validated = $this->validateArticle($request, lockPermalink: true);
+
+        $categorySlug = $this->resolveCategory($validated);
+
+        $updateData = [
+            'title' => $validated['title'],
+            'category' => $categorySlug,
+            'excerpt' => $validated['excerpt'],
+            'body' => $validated['body'] ?? null,
+            'faqs' => $this->parseFaqs($request),
+            'meta_title' => $validated['meta_title'] ?? null,
+            'meta_author' => $validated['meta_author'] ?? 'PT. Tangga Mas Jaya Makmur',
+            'meta_keywords' => $validated['meta_keywords'] ?? null,
+            'meta_description' => $validated['meta_description'] ?? null,
+        ];
+
+        // Thumbnail cuma diganti kalau admin upload file baru.
         if ($request->hasFile('thumbnail')) {
-            // Hapus gambar lama dari folder lokal agar tidak memenuhi memori penyimpanan
-            if ($article->thumbnail && Storage::disk('public')->exists($article->thumbnail)) {
+            if ($article->thumbnail) {
                 Storage::disk('public')->delete($article->thumbnail);
             }
-            // Simpan gambar baru
-            $imagePath = $request->file('thumbnail')->store('articles', 'public');
+            $updateData['thumbnail'] = $request->file('thumbnail')->store('articles/thumbnails', 'public');
         }
 
-        // 3. Update Data di Database
-        $article->update([
-            'title' => $request->title,
-            'slug' => Str::slug($request->title) . '-' . time(), // Opsional: perbarui slug agar tetap rapi sesuai judul baru
-            'category' => $request->category,
-            'excerpt' => $request->excerpt,
-            'body' => $request->body,
-            'thumbnail' => $imagePath,
-        ]);
+        $article->update($updateData);
 
-        return redirect()->route('articles.index')->with('success', 'Artikel berhasil diperbarui!');
+        return redirect()
+            ->route('articles.index')
+            ->with('success', 'Artikel berhasil diperbarui.');
+    }
+
+    public function destroy(Article $article)
+    {
+        $article->delete();
+
+        return redirect()
+            ->route('articles.index')
+            ->with('success', 'Artikel berhasil dihapus.');
     }
 
     /**
-     * Menghapus artikel dari database secara permanen.
+     * Endpoint upload gambar untuk CKEditor 5.
+     * Response mengikuti format SimpleUploadAdapter / CKFinder.
      */
-    public function destroy(string $id)
+    public function uploadImage(Request $request)
     {
-        $article = Article::findOrFail($id);
+        $validator = Validator::make($request->all(), [
+            'upload' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:10048'],
+        ]);
 
-        // Hapus file gambarnya terlebih dahulu dari folder lokal
-        if ($article->thumbnail && Storage::disk('public')->exists($article->thumbnail)) {
-            Storage::disk('public')->delete($article->thumbnail);
+        if ($validator->fails()) {
+            return response()->json([
+                'uploaded' => 0,
+                'error' => ['message' => $validator->errors()->first('upload')],
+            ], 422);
         }
 
-        // Hapus baris data dari database
-        $article->delete();
+        $path = $request->file('upload')->store('articles/content', 'public');
 
-        return redirect()->route('articles.index')->with('success', 'Artikel berhasil dihapus!');
+        return response()->json([
+            'uploaded' => 1,
+            'fileName' => basename($path),
+            'url' => Storage::disk('public')->url($path),
+        ]);
+    }
+
+    private function validateArticle(Request $request, bool $lockPermalink = false): array
+    {
+        $rules = [
+            'title' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string', 'max:255'],
+            'new_category' => ['nullable', 'string', 'max:255', 'required_if:category,new'],
+            'excerpt' => ['required', 'string', 'max:500'],
+            'body' => ['nullable', 'string'],
+            'faqs' => ['nullable', 'array'],
+            'faqs.*.question' => ['nullable', 'string', 'max:500'],
+            'faqs.*.answer' => ['nullable', 'string'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_author' => ['nullable', 'string', 'max:255'],
+            'meta_keywords' => ['nullable', 'string', 'max:500'],
+            'meta_description' => ['nullable', 'string', 'max:160'],
+        ];
+
+        // Saat create: thumbnail wajib upload baru.
+        // Saat edit: thumbnail opsional (boleh tidak diganti, pakai yang lama).
+        $rules['thumbnail'] = $lockPermalink
+            ? ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:10048']
+            : ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:10048'];
+
+        if (! $lockPermalink) {
+            $rules['prefix'] = ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\-\s]+$/'];
+            $rules['slug'] = ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\-\s]+$/'];
+        }
+
+        return $request->validate($rules);
+    }
+
+    /**
+     * Jika admin memilih "+ Tambah Kategori Baru...", buat record Category baru
+     * (atau pakai yang sudah ada jika slug-nya sama), lalu kembalikan slug-nya.
+     * Jika bukan, kembalikan value yang dipilih dari dropdown apa adanya (sudah berupa slug).
+     */
+    private function resolveCategory(array $validated): string
+    {
+        if ($validated['category'] !== 'new') {
+            return $validated['category'];
+        }
+
+        $name = trim($validated['new_category']);
+        $slug = Str::slug($name);
+
+        $category = Category::firstOrCreate(
+            ['slug' => $slug],
+            ['name' => $name]
+        );
+
+        return $category->slug;
+    }
+
+    /**
+     * Ambil FAQ dari input repeater, buang item kosong, return null jika tidak ada.
+     */
+    private function parseFaqs(Request $request): ?array
+    {
+        $faqs = collect($request->input('faqs', []))
+            ->map(fn ($faq) => [
+                'question' => trim($faq['question'] ?? ''),
+                'answer' => trim($faq['answer'] ?? ''),
+            ])
+            ->filter(fn ($faq) => $faq['question'] !== '')
+            ->values()
+            ->all();
+
+        return $faqs === [] ? null : $faqs;
+    }
+
+    /**
+     * Tambahkan suffix angka jika slug auto-generate sudah dipakai pada prefix yang sama.
+     */
+    private function generateUniqueSlug(string $slug, string $prefix): string
+    {
+        $candidate = $slug;
+        $counter = 2;
+
+        while (Article::where('prefix', $prefix)->where('slug', $candidate)->exists()) {
+            $candidate = $slug.'-'.$counter;
+            $counter++;
+        }
+
+        return $candidate;
     }
 }

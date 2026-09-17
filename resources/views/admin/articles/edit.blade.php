@@ -3,8 +3,6 @@
 @section('title', 'Edit Artikel')
 
 @section('content')
-<!-- Core Themes Quill.js Rich Text Editor -->
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
 
 <div class="max-w-4xl mx-auto space-y-6">
   
@@ -49,19 +47,75 @@
         />
       </div>
 
-      <!-- Pilihan Kategori -->
+      <!-- Pilihan Kategori (DINAMIS) -->
       <div>
         <label for="category" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Kategori</label>
         <select 
           name="category" id="category" required
           class="w-full px-4 py-3 rounded-xl border border-gray-300 font-medium focus:outline-none focus:ring-2 focus:ring-brand-dark text-sm bg-white transition-all"
         >
-          <option value="edukasi-k3" {{ old('category', $article->category) == 'edukasi-k3' ? 'selected' : '' }}>Ekedukasi K3</option>
-          <option value="proyek" {{ old('category', $article->category) == 'proyek' ? 'selected' : '' }}>Proyek</option>
-          <option value="instalasi" {{ old('category', $article->category) == 'instalasi' ? 'selected' : '' }}>Instalasi</option>
+          <option value="" disabled>Pilih Kategori</option>
+          
+          <!-- Loop Kategori dari Database -->
+          @foreach($categories as $cat)
+            <option value="{{ $cat->slug }}" {{ old('category', $article->category) == $cat->slug ? 'selected' : '' }}>
+              {{ $cat->name }}
+            </option>
+          @endforeach
+
+          <!-- Opsi Tambah Kategori Baru -->
+          <option value="new" class="font-bold text-blue-600">+ Tambah Kategori Baru...</option>
         </select>
       </div>
 
+    </div>
+
+    <!-- Input Kategori Baru (Muncul Hanya Jika Opsi "new" Dipilih) -->
+    <div id="newCategoryWrapper" class="hidden animate-fade-in">
+      <label for="new_category" class="block text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">Nama Kategori Baru</label>
+      <input 
+        type="text" name="new_category" id="new_category" value="{{ old('new_category') }}"
+        class="w-full px-4 py-3 rounded-xl border border-blue-300 bg-blue-50/30 font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm transition-all"
+        placeholder="Ketikkan nama kategori baru..."
+      />
+    </div>
+
+    <!-- Pengaturan Permalink URL (READ-ONLY / TERKUNCI setelah publish) -->
+    <div class="rounded-2xl border border-gray-200 bg-gray-50 p-6 space-y-4">
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+          Permalink URL (Terkunci)
+        </p>
+        <p class="text-xs text-gray-400 mt-1">
+          Prefix dan slug tidak bisa diubah lagi setelah artikel diterbitkan, untuk menjaga URL tetap valid (mencegah broken link / duplikat SEO).
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+            Prefix / Sub-Folder URL
+          </label>
+          <input
+            type="text" value="{{ $article->prefix }}" disabled readonly
+            class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-500 font-medium text-sm cursor-not-allowed"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+            Slug SEO
+          </label>
+          <input
+            type="text" value="{{ $article->slug }}" disabled readonly
+            class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-500 font-medium text-sm cursor-not-allowed"
+          />
+        </div>
+      </div>
+
+      <p class="text-[11px] text-gray-400">
+        URL saat ini: <span class="font-mono text-gray-500">/{{ $article->prefix }}/{{ $article->slug }}</span>
+      </p>
     </div>
 
     <!-- Input Ringkasan -->
@@ -86,13 +140,61 @@
       <p class="text-[11px] text-gray-400 mt-1.5 font-normal">*Biarkan kosong jika Anda tidak ingin mengganti gambar artikel utama.</p>
     </div>
 
-    <!-- Input Isi Konten (Quill.js) -->
+    <!-- Input Isi Konten (CKEditor 5: mendukung gambar & tabel) -->
     <div>
       <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Isi Konten Utama Artikel</label>
-      <div id="editor" class="h-80 rounded-b-xl border border-gray-300 bg-gray-50/20 text-sm">
-        {!! old('body', $article->body) !!}
+      <textarea name="body" id="editor" rows="15">{!! old('body', $article->body) !!}</textarea>
+    </div>
+
+    <!-- Optimasi SEO (Meta Tags) -->
+    <div class="pt-6 border-t border-gray-100">
+      <div class="mb-4">
+        <p class="text-base font-bold text-brand-dark flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+          Optimasi SEO (Meta Tags)
+        </p>
+        <p class="text-xs text-gray-500 mt-1">
+          Pengaturan meta tag untuk meningkatkan peringkat artikel di mesin pencari Google. Kosongkan jika ingin menggunakan bawaan sistem.
+        </p>
       </div>
-      <input type="hidden" name="body" id="body-content">
+
+      <div class="rounded-2xl border border-gray-200 bg-gray-50 p-6 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="meta_title" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Meta Title</label>
+            <input
+              type="text" name="meta_title" id="meta_title" value="{{ old('meta_title', $article->meta_title) }}" maxlength="255"
+              class="w-full px-4 py-3 rounded-xl border border-gray-300 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-brand-dark transition-all"
+              placeholder="Kosongkan jika ingin menyamakan dengan Judul Artikel"
+            />
+          </div>
+          <div>
+            <label for="meta_author" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Meta Author</label>
+            <input
+              type="text" name="meta_author" id="meta_author" value="{{ old('meta_author', $article->meta_author) }}" maxlength="255"
+              class="w-full px-4 py-3 rounded-xl border border-gray-300 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-brand-dark transition-all"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="meta_keywords" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Meta Keywords</label>
+          <input
+            type="text" name="meta_keywords" id="meta_keywords" value="{{ old('meta_keywords', $article->meta_keywords) }}" maxlength="500"
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-brand-dark transition-all"
+            placeholder="Pisahkan dengan koma. Contoh: Jual Scaffolding, K3 Konstruksi, Tangga Mas"
+          />
+        </div>
+
+        <div>
+          <label for="meta_description" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Meta Description</label>
+          <textarea
+            name="meta_description" id="meta_description" rows="3" maxlength="160"
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-brand-dark transition-all resize-none"
+            placeholder="Ringkasan singkat 150-160 karakter untuk hasil pencarian Google..."
+          >{{ old('meta_description', $article->meta_description) }}</textarea>
+        </div>
+      </div>
     </div>
 
     <!-- Tombol Aksi -->
@@ -109,26 +211,53 @@
 
 </div>
 
-<!-- Memuat Skrip Pustaka Quill.js -->
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-<script>
-  const quill = new Quill('#editor', {
-    theme: 'snow',
-    modules: {
-      toolbar: [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        ['blockquote', 'code-block'],
-        ['clean']
-      ]
-    }
-  });
+<!-- Memuat Skrip Pustaka CKEditor 5 (Classic Build: sudah termasuk fitur Tabel & Upload Gambar) -->
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
+<script>
+  // 1. Inisialisasi CKEditor 5
+  let editorInstance = null;
+
+  ClassicEditor
+    .create(document.querySelector('#editor'), {
+      ckfinder: {
+        uploadUrl: '{{ route('articles.upload-image') }}?_token={{ csrf_token() }}'
+      },
+      table: {
+        contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
+      }
+    })
+    .then(editor => {
+      editorInstance = editor;
+    })
+    .catch(error => {
+      console.error('Gagal memuat editor:', error);
+    });
+
+  // 2. Logika Sembunyikan/Tampilkan Input Kategori Baru
+  const categorySelect = document.getElementById('category');
+  const newCatWrapper = document.getElementById('newCategoryWrapper');
+  const newCatInput = document.getElementById('new_category');
+
+  function checkCategoryOption() {
+    if (categorySelect.value === 'new') {
+      newCatWrapper.classList.remove('hidden');
+      newCatInput.required = true;
+    } else {
+      newCatWrapper.classList.add('hidden');
+      newCatInput.required = false;
+    }
+  }
+
+  categorySelect.addEventListener('change', checkCategoryOption);
+  checkCategoryOption();
+
+  // 3. Sinkronisasi Data Editor ke Textarea Sebelum Form Dikirim
   const form = document.getElementById('articleForm');
-  form.addEventListener('submit', function() {
-    const bodyContent = quill.getSemanticHTML();
-    document.getElementById('body-content').value = bodyContent;
+  form.addEventListener('submit', function () {
+    if (editorInstance) {
+      document.getElementById('editor').value = editorInstance.getData();
+    }
   });
 </script>
 @endsection

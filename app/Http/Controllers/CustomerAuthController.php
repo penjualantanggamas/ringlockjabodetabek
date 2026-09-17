@@ -31,7 +31,6 @@ class CustomerAuthController extends Controller
                 return redirect('/admin/dashboard'); 
             }
             
-            Auth::login($user);
             // Jika customer, paksa arahkan kembali ke katalog produk
             return redirect('/produk')->with('success', 'Akun berhasil dibuat!');
         }

@@ -28,8 +28,6 @@ let DOM = {};
 
 /* -----------------------------------------------
    VARIANT PICKER STATE
-   Menyimpan konteks produk yang sedang dipilih
-   variannya sebelum dimasukkan keranjang.
 ----------------------------------------------- */
 let pickerContext = {
   name:     '',   // nama produk
@@ -44,7 +42,6 @@ function saveCartToStorage() {
     localStorage.setItem('ringlock_cart', JSON.stringify(cart));
 }
 
-// Fungsi pembantu baru untuk menghapus isi keranjang belanja secara total setelah checkout sukses
 function clearCartStorage() {
     localStorage.removeItem('ringlock_cart');
     cart = [];
@@ -53,10 +50,6 @@ function clearCartStorage() {
 
 /* -----------------------------------------------
    VARIANT PICKER: showVariantPicker
-   Tampilkan modal pilih ukuran.
-   name        — string nama produk
-   variants    — array string (misal ["0.9 m","1.2 m"…])
-   triggerBtn  — tombol .other-cart-btn yang diklik
 ----------------------------------------------- */
 function showVariantPicker(name, variants, triggerBtn) {
   pickerContext = { name, variants, triggerBtn };
@@ -101,25 +94,20 @@ function showVariantPicker(name, variants, triggerBtn) {
       Pilih ukuran untuk menambahkan ke keranjang permintaan.
     </p>`;
 
-  /* Tampilkan */
   backdrop.style.removeProperty('display');
   modal.style.removeProperty('display');
 
-  /* Animate in */
   requestAnimationFrame(() => {
     modal.classList.add('translate-y-0');
     modal.classList.remove('translate-y-full');
   });
 
-  /* Bind tombol tutup */
   document.getElementById('vp-close')?.addEventListener('click', closeVariantPicker);
 
-  /* Bind setiap opsi varian */
   modal.querySelectorAll('.vp-variant-option').forEach(optBtn => {
     optBtn.addEventListener('click', () => {
       const selectedVariant = optBtn.dataset.variant;
 
-      /* Visual: highlight pilihan */
       modal.querySelectorAll('.vp-variant-option').forEach(b => {
         b.classList.remove('border-brand-dark', 'bg-brand-light', 'text-brand-dark');
         b.classList.add('border-gray-200', 'text-gray-700');
@@ -127,18 +115,18 @@ function showVariantPicker(name, variants, triggerBtn) {
       optBtn.classList.add('border-brand-dark', 'bg-brand-light', 'text-brand-dark');
       optBtn.classList.remove('border-gray-200', 'text-gray-700');
 
-      /* Tutup picker lalu tambah ke cart */
+      /* FIX URUTAN LOGIKA DISINI */
       setTimeout(() => {
+        const namaProdukTerpilih = pickerContext.name;
+        const tombolPemicu = pickerContext.triggerBtn;
+
         closeVariantPicker();
-        addToCart(pickerContext.name, selectedVariant, pickerContext.triggerBtn);
+        addToCart(namaProdukTerpilih, selectedVariant, tombolPemicu);
       }, 200);
     });
   });
 }
 
-/* -----------------------------------------------
-   VARIANT PICKER: closeVariantPicker
------------------------------------------------ */
 function closeVariantPicker() {
   const backdrop = document.getElementById('vp-backdrop');
   const modal    = document.getElementById('vp-modal');
@@ -150,27 +138,20 @@ function closeVariantPicker() {
 /* -----------------------------------------------
    HELPERS
 ----------------------------------------------- */
-
-/**
- * Buat unique key untuk dedup item di keranjang.
- * Produk dianggap sama jika nama + varian identik.
- */
 function makeId(name, variant) {
   return (name + '||' + (variant || '')).toLowerCase().trim();
 }
 
-/**
- * Hitung total qty seluruh item di cart.
- */
 function totalQty() {
   return cart.reduce((sum, item) => sum + item.qty, 0);
 }
 
+function formatRupiah(angka) {
+  return String(angka).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
 /* -----------------------------------------------
-   CORE: addToCart
-   name    — string nama produk
-   variant — string varian/ukuran (opsional)
-   btn     — DOM element tombol (untuk feedback)
+   CORE LOGIC
 ----------------------------------------------- */
 function addToCart(name, variant, btn) {
   const id = makeId(name, variant);
@@ -182,44 +163,35 @@ function addToCart(name, variant, btn) {
     cart.push({ id, name, variant: variant || '', qty: 1 });
   }
 
-  saveCartToStorage(); // <-- Menyimpan ke LocalStorage
+  saveCartToStorage();
   updateCartUI();
   flashButton(btn);
   animateBadge();
 }
 
-/* -----------------------------------------------
-   CORE: removeFromCart
------------------------------------------------ */
 function removeFromCart(id) {
   cart = cart.filter(item => item.id !== id);
-  saveCartToStorage(); // <-- Menyimpan perubahan ke LocalStorage
+  saveCartToStorage();
   updateCartUI();
 }
 
-/* -----------------------------------------------
-   CORE: changeQty
-   delta: +1 atau -1
------------------------------------------------ */
 function changeQty(id, delta) {
   const item = cart.find(i => i.id === id);
   if (!item) return;
   item.qty += delta;
   if (item.qty <= 0) removeFromCart(id);
   else {
-    saveCartToStorage(); // <-- Menyimpan penyesuaian jumlah ke LocalStorage
+    saveCartToStorage();
     updateCartUI();
   }
 }
 
 /* -----------------------------------------------
    UI: updateCartUI
-   Re-render cart body + badge setiap ada perubahan.
 ----------------------------------------------- */
-function updateCartUI() {
+async function updateCartUI() {
   const qty = totalQty();
 
-  /* --- Badge --- */
   if (qty > 0) {
     DOM.badge.textContent = qty > 99 ? '99+' : qty;
     DOM.badge.classList.remove('hidden');
@@ -227,7 +199,6 @@ function updateCartUI() {
     DOM.badge.classList.add('hidden');
   }
 
-  /* --- Cart Body --- */
   if (cart.length === 0) {
     DOM.cartBody.innerHTML = `
       <div class="flex flex-col items-center justify-center h-full py-16 gap-4 text-center">
@@ -249,68 +220,108 @@ function updateCartUI() {
   DOM.emptyHint.classList.add('hidden');
   DOM.waBtn.disabled = false;
 
-  /* --- Render item list --- */
-  DOM.cartBody.innerHTML = cart.map(item => `
-    <div class="cart-item flex items-start gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100"
-         data-id="${escHtml(item.id)}">
+  try {
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-      <div class="w-10 h-10 bg-brand-light rounded-lg flex items-center justify-center shrink-0">
-        <svg class="w-5 h-5 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-            d="M3 3h4v18H3V3zm7 0h4v18h-4V3zm7 4h4v14h-4V7z"/>
-        </svg>
-      </div>
-
-      <div class="flex-1 min-w-0">
-        <p class="font-bold text-brand-dark text-[13px] leading-snug truncate">${escHtml(item.name)}</p>
-        ${item.variant
-          ? `<p class="text-[11px] text-gray-400 font-medium mt-0.5">${escHtml(item.variant)}</p>`
-          : ''}
-
-        <div class="flex items-center gap-2 mt-2">
-          <button
-            class="qty-btn w-6 h-6 rounded-md bg-white border border-gray-200 hover:border-brand-dark
-                   flex items-center justify-center text-gray-600 hover:text-brand-dark
-                   transition-colors text-[14px] font-bold"
-            data-action="dec" data-id="${escHtml(item.id)}">−</button>
-
-          <span class="text-[13px] font-extrabold text-brand-dark w-5 text-center">${item.qty}</span>
-
-          <button
-            class="qty-btn w-6 h-6 rounded-md bg-white border border-gray-200 hover:border-brand-dark
-                   flex items-center justify-center text-gray-600 hover:text-brand-dark
-                   transition-colors text-[14px] font-bold"
-            data-action="inc" data-id="${escHtml(item.id)}">+</button>
-
-          <span class="text-[11px] text-gray-400 ml-0.5">pcs</span>
-        </div>
-      </div>
-
-      <button
-        class="remove-btn w-7 h-7 rounded-lg bg-red-50 hover:bg-red-100 flex items-center
-               justify-center text-red-400 hover:text-red-600 transition-colors shrink-0 mt-0.5"
-        data-id="${escHtml(item.id)}"
-        aria-label="Hapus ${escHtml(item.name)}">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6
-               m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>
-      </button>
-    </div>
-  `).join('');
-
-  /* --- Bind qty & remove buttons (event delegation) --- */
-  DOM.cartBody.querySelectorAll('.qty-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const delta = btn.dataset.action === 'inc' ? 1 : -1;
-      changeQty(btn.dataset.id, delta);
+    const response = await fetch('/produk/get-prices', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': token || ''
+      },
+      body: JSON.stringify({ items: cart })
     });
-  });
 
-  DOM.cartBody.querySelectorAll('.remove-btn').forEach(btn => {
-    btn.addEventListener('click', () => removeFromCart(btn.dataset.id));
-  });
+    const dbPrices = await response.json();
+    let totalBiayaKeranjang = 0;
+
+    DOM.cartBody.innerHTML = cart.map(item => {
+      const match = dbPrices.find(db => {
+        const dbName   = db.name.toLowerCase().trim();
+        const itemName = item.name.toLowerCase().trim();
+        
+        const dbVar    = (db.variant || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+        const itemVar  = (item.variant || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+        
+        return dbName === itemName && (dbVar === itemVar || itemVar === '' || dbVar === '');
+      });
+
+      const hargaSatuan = match ? match.price : 0;
+      const subTotalItem = hargaSatuan * item.qty;
+      
+      totalBiayaKeranjang += subTotalItem;
+
+      return `
+        <div class="cart-item flex items-start gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100" data-id="${escHtml(item.id)}">
+          <div class="w-10 h-10 bg-brand-light rounded-lg flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h4v18H3V3zm7 0h4v18h-4V3zm7 4h4v14h-4V7z"/>
+            </svg>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-brand-dark text-[13px] leading-snug truncate">${escHtml(item.name)}</p>
+            ${item.variant ? `<p class="text-[11px] text-gray-400 font-medium mt-0.5">${escHtml(item.variant)}</p>` : ''}
+            
+            <p class="text-[11px] text-blue-600 font-bold mt-1">Rp ${formatRupiah(hargaSatuan)} / pcs</p>
+
+            <div class="flex items-center gap-2 mt-2">
+              <button class="qty-btn w-6 h-6 rounded-md bg-white border border-gray-200 hover:border-brand-dark flex items-center justify-center text-gray-600 hover:text-brand-dark transition-colors text-[14px] font-bold" data-action="dec" data-id="${escHtml(item.id)}">−</button>
+              <input type="number" min="1" class="qty-input w-12 h-6 rounded-md bg-white border border-gray-200 text-center text-[13px] font-extrabold text-brand-dark focus:outline-none focus:border-brand-dark" data-id="${escHtml(item.id)}" value="${item.qty}">
+              <button class="qty-btn w-6 h-6 rounded-md bg-white border border-gray-200 hover:border-brand-dark flex items-center justify-center text-gray-600 hover:text-brand-dark transition-colors text-[14px] font-bold" data-action="inc" data-id="${escHtml(item.id)}">+</button>
+              <span class="text-[11px] text-gray-400 ml-0.5">pcs</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col items-end justify-between h-full min-h-[70px] shrink-0">
+            <button class="remove-btn w-7 h-7 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-400 hover:text-red-600 transition-colors mt-0.5" data-id="${escHtml(item.id)}">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+            <span class="text-[12px] font-extrabold text-brand-dark">Rp ${formatRupiah(subTotalItem)}</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    DOM.cartBody.innerHTML += `
+      <div class="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-center justify-between sticky bottom-0 bg-white shadow-sm">
+        <span class="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Total Harga:</span>
+        <span class="text-[16px] font-black text-[rgb(0,35,111)]">Rp ${formatRupiah(totalBiayaKeranjang)}</span>
+      </div>
+    `;
+
+    DOM.cartBody.querySelectorAll('.qty-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const delta = btn.dataset.action === 'inc' ? 1 : -1;
+        changeQty(btn.dataset.id, delta);
+      });
+    });
+
+    DOM.cartBody.querySelectorAll('.qty-input').forEach(input => {
+      input.addEventListener('change', (e) => {
+        let val = parseInt(e.target.value);
+        const id = input.dataset.id;
+        if (isNaN(val) || val < 1) val = 1;
+        
+        const item = cart.find(i => i.id === id);
+        if (item) {
+          item.qty = val;
+          saveCartToStorage();
+          updateCartUI();
+        }
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (['-', '+', 'e', 'E'].includes(e.key)) e.preventDefault();
+      });
+    });
+
+    DOM.cartBody.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', () => removeFromCart(btn.dataset.id));
+    });
+
+  } catch (error) {
+    console.error("Gagal menyinkronkan data harga dari database:", error);
+  }
 }
 
 /* -----------------------------------------------
@@ -319,7 +330,7 @@ function updateCartUI() {
 function openDrawer() {
   DOM.drawer.classList.add('open');
   DOM.overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';  // prevent body scroll
+  document.body.style.overflow = 'hidden';
 }
 
 function closeDrawer() {
@@ -329,7 +340,7 @@ function closeDrawer() {
 }
 
 /* -----------------------------------------------
-   UI: Button feedback — flash hijau sebentar
+   UI: Button feedback
 ----------------------------------------------- */
 function flashButton(btn) {
   if (!btn) return;
@@ -351,40 +362,29 @@ function flashButton(btn) {
   }, 1500);
 }
 
-/* -----------------------------------------------
-   UI: Badge pop animation
------------------------------------------------ */
 function animateBadge() {
   DOM.badge.classList.remove('badge-pop');
-  // force reflow untuk restart animasi
   void DOM.badge.offsetWidth;
   DOM.badge.classList.add('badge-pop');
 }
 
 /* -----------------------------------------------
-   CHECKOUT: sendToWhatsApp (Deprecated / Dimatikan di Blade)
+   CHECKOUT: sendToWhatsApp
 ----------------------------------------------- */
 function sendToWhatsApp() {
   if (cart.length === 0) return;
 
-  const WA_NUMBER = '628123651717';
+  const isUserLoggedIn = document.getElementById('profile-dropdown-wrapper') !== null;
 
-  const itemLines = cart.map((item, i) => {
-    const variantStr = item.variant ? ` (${item.variant})` : '';
-    return `${i + 1}. ${item.name}${variantStr} - ${item.qty} pcs`;
-  }).join('\n');
-
-  const message =
-    `Halo Ringlock Indonesia Jabodetabek, saya ingin meminta penawaran untuk produk berikut:\n\n` +
-    `${itemLines}\n\n` +
-    `Mohon info penawaran harganya, Terima kasih.`;
-
-  const encoded = encodeURIComponent(message);
-  window.open(`https://wa.me/${WA_NUMBER}?text=${encoded}`, '_blank');
+  if (isUserLoggedIn) {
+      window.location.href = "/checkout";
+  } else {
+      window.location.href = "/customer/login";
+  }
 }
 
 /* -----------------------------------------------
-   SECURITY: escape HTML untuk render dinamis
+   SECURITY: escape HTML
 ----------------------------------------------- */
 function escHtml(str) {
   return String(str)
@@ -474,11 +474,10 @@ function initLedgerVariants() {
 }
 
 /* -----------------------------------------------
-   INIT — Jalankan setelah DOM siap
+   INIT
 ----------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* Resolve DOM refs */
   DOM = {
     fab:       document.getElementById('cart-fab'),
     badge:     document.getElementById('cart-badge'),
@@ -498,10 +497,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnVertical = document.getElementById('btn-add-vertical');
   if (btnVertical) {
     btnVertical.addEventListener('click', () => {
-      const name    = document.getElementById('vertical-title')?.textContent?.trim()
-                      || 'Ringlock Standard';
-      const variant = document.getElementById('panjang-aktif')?.textContent?.trim()
-                      || '';
+      const name    = document.getElementById('vertical-title')?.textContent?.trim() || 'Ringlock Standard';
+      const variant = document.getElementById('panjang-aktif')?.textContent?.trim() || '';
       addToCart(name, variant, btnVertical);
     });
   }
@@ -509,10 +506,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnLedger = document.getElementById('btn-add-ledger');
   if (btnLedger) {
     btnLedger.addEventListener('click', () => {
-      const name    = document.getElementById('ledger-title')?.textContent?.trim()
-                      || 'Ringlock Ledger';
-      const variant = document.getElementById('panjang-ledger-aktif')?.textContent?.trim()
-                      || '';
+      const name    = document.getElementById('ledger-title')?.textContent?.trim() || 'Ringlock Ledger';
+      const variant = document.getElementById('panjang-ledger-aktif')?.textContent?.trim() || '';
       addToCart(name, variant, btnLedger);
     });
   }
@@ -524,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!btn) return;
 
       const card = btn.closest('.other-card');
-      const name = card?.querySelector('.card-title')?.textContent?.trim() || 'Produk';
+      const name = btn.dataset.name || card?.querySelector('.card-title')?.textContent?.trim() || 'Produk';
 
       if (btn.dataset.hasVariants === 'true') {
         let variants = [];
@@ -560,6 +555,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initVerticalVariants();
   initLedgerVariants();
 
-  /* --- Initial render (Membaca data dari localstorage yang ter-keep) --- */
   updateCartUI();
 });

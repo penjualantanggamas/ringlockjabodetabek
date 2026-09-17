@@ -3,7 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ $article->title }} — Ringlock Indonesia</title>
+  <title>{{ $article->meta_title ?: $article->title }} — Ringlock Indonesia</title>
+
+  <meta name="description" content="{{ $article->meta_description ?: $article->excerpt }}">
+  @if($article->meta_keywords)
+  <meta name="keywords" content="{{ $article->meta_keywords }}">
+  @endif
+  <meta name="author" content="{{ $article->meta_author ?: 'PT. Tangga Mas Jaya Makmur' }}">
+
+  <!-- Open Graph (tampilan saat link dibagikan ke WhatsApp/Facebook/dll) -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{{ $article->meta_title ?: $article->title }}">
+  <meta property="og:description" content="{{ $article->meta_description ?: $article->excerpt }}">
+  <meta property="og:image" content="{{ asset('storage/' . $article->thumbnail) }}">
+  <meta property="og:url" content="{{ url()->current() }}">
+
+  <link rel="canonical" href="{{ url()->current() }}">
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -30,6 +45,54 @@
   </script>
 
   <link rel="stylesheet" href="{{ asset('style.css') }}" />
+
+  <style>
+    /* Styling untuk tabel hasil CKEditor 5 di dalam konten artikel */
+    .prose-article .table table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1.5rem 0;
+    }
+    .prose-article .table table td,
+    .prose-article .table table th {
+      border: 1px solid #d1d5db;
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose-article .table table th {
+      background-color: #f3f4f6;
+      font-weight: 700;
+      color: rgb(0, 35, 111);
+    }
+    .prose-article .table table tr:nth-child(even) td {
+      background-color: #fafafa;
+    }
+    .prose-article .table figcaption {
+      font-size: 13px;
+      color: #6b7280;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    /* Styling gambar yang disisipkan di dalam konten artikel */
+    .prose-article .image img,
+    .prose-article img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      margin: 1.5rem 0;
+    }
+    .prose-article figure {
+      margin: 1.5rem 0;
+    }
+    .prose-article figcaption {
+      font-size: 13px;
+      color: #6b7280;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+  </style>
 </head>
 <body class="font-sans bg-white text-gray-800 antialiased">
 
