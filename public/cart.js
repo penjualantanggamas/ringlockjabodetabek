@@ -146,10 +146,6 @@ function totalQty() {
   return cart.reduce((sum, item) => sum + item.qty, 0);
 }
 
-function formatRupiah(angka) {
-  return String(angka).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
 /* -----------------------------------------------
    CORE LOGIC
 ----------------------------------------------- */
@@ -188,8 +184,10 @@ function changeQty(id, delta) {
 
 /* -----------------------------------------------
    UI: updateCartUI
+   (Catatan: harga TIDAK ditampilkan di keranjang — sudah tidak lagi
+   fetch ke /produk/get-prices, cukup render nama produk, varian, & qty)
 ----------------------------------------------- */
-async function updateCartUI() {
+function updateCartUI() {
   const qty = totalQty();
 
   if (qty > 0) {
@@ -220,108 +218,62 @@ async function updateCartUI() {
   DOM.emptyHint.classList.add('hidden');
   DOM.waBtn.disabled = false;
 
-  try {
-    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  DOM.cartBody.innerHTML = cart.map(item => {
+    return `
+      <div class="cart-item flex items-start gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100" data-id="${escHtml(item.id)}">
+        <div class="w-10 h-10 bg-brand-light rounded-lg flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h4v18H3V3zm7 0h4v18h-4V3zm7 4h4v14h-4V7z"/>
+          </svg>
+        </div>
 
-    const response = await fetch('/produk/get-prices', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': token || ''
-      },
-      body: JSON.stringify({ items: cart })
-    });
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-brand-dark text-[13px] leading-snug truncate">${escHtml(item.name)}</p>
+          ${item.variant ? `<p class="text-[11px] text-gray-400 font-medium mt-0.5">${escHtml(item.variant)}</p>` : ''}
 
-    const dbPrices = await response.json();
-    let totalBiayaKeranjang = 0;
-
-    DOM.cartBody.innerHTML = cart.map(item => {
-      const match = dbPrices.find(db => {
-        const dbName   = db.name.toLowerCase().trim();
-        const itemName = item.name.toLowerCase().trim();
-        
-        const dbVar    = (db.variant || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-        const itemVar  = (item.variant || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-        
-        return dbName === itemName && (dbVar === itemVar || itemVar === '' || dbVar === '');
-      });
-
-      const hargaSatuan = match ? match.price : 0;
-      const subTotalItem = hargaSatuan * item.qty;
-      
-      totalBiayaKeranjang += subTotalItem;
-
-      return `
-        <div class="cart-item flex items-start gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100" data-id="${escHtml(item.id)}">
-          <div class="w-10 h-10 bg-brand-light rounded-lg flex items-center justify-center shrink-0">
-            <svg class="w-5 h-5 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h4v18H3V3zm7 0h4v18h-4V3zm7 4h4v14h-4V7z"/>
-            </svg>
+          <div class="flex items-center gap-2 mt-2">
+            <button class="qty-btn w-6 h-6 rounded-md bg-white border border-gray-200 hover:border-brand-dark flex items-center justify-center text-gray-600 hover:text-brand-dark transition-colors text-[14px] font-bold" data-action="dec" data-id="${escHtml(item.id)}">−</button>
+            <input type="number" min="1" class="qty-input w-12 h-6 rounded-md bg-white border border-gray-200 text-center text-[13px] font-extrabold text-brand-dark focus:outline-none focus:border-brand-dark" data-id="${escHtml(item.id)}" value="${item.qty}">
+            <button class="qty-btn w-6 h-6 rounded-md bg-white border border-gray-200 hover:border-brand-dark flex items-center justify-center text-gray-600 hover:text-brand-dark transition-colors text-[14px] font-bold" data-action="inc" data-id="${escHtml(item.id)}">+</button>
+            <span class="text-[11px] text-gray-400 ml-0.5">pcs</span>
           </div>
+        </div>
 
-          <div class="flex-1 min-w-0">
-            <p class="font-bold text-brand-dark text-[13px] leading-snug truncate">${escHtml(item.name)}</p>
-            ${item.variant ? `<p class="text-[11px] text-gray-400 font-medium mt-0.5">${escHtml(item.variant)}</p>` : ''}
-            
-            <p class="text-[11px] text-blue-600 font-bold mt-1">Rp ${formatRupiah(hargaSatuan)} / pcs</p>
+        <button class="remove-btn w-7 h-7 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-400 hover:text-red-600 transition-colors shrink-0" data-id="${escHtml(item.id)}">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+      </div>`;
+  }).join('');
 
-            <div class="flex items-center gap-2 mt-2">
-              <button class="qty-btn w-6 h-6 rounded-md bg-white border border-gray-200 hover:border-brand-dark flex items-center justify-center text-gray-600 hover:text-brand-dark transition-colors text-[14px] font-bold" data-action="dec" data-id="${escHtml(item.id)}">−</button>
-              <input type="number" min="1" class="qty-input w-12 h-6 rounded-md bg-white border border-gray-200 text-center text-[13px] font-extrabold text-brand-dark focus:outline-none focus:border-brand-dark" data-id="${escHtml(item.id)}" value="${item.qty}">
-              <button class="qty-btn w-6 h-6 rounded-md bg-white border border-gray-200 hover:border-brand-dark flex items-center justify-center text-gray-600 hover:text-brand-dark transition-colors text-[14px] font-bold" data-action="inc" data-id="${escHtml(item.id)}">+</button>
-              <span class="text-[11px] text-gray-400 ml-0.5">pcs</span>
-            </div>
-          </div>
+  DOM.cartBody.querySelectorAll('.qty-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const delta = btn.dataset.action === 'inc' ? 1 : -1;
+      changeQty(btn.dataset.id, delta);
+    });
+  });
 
-          <div class="flex flex-col items-end justify-between h-full min-h-[70px] shrink-0">
-            <button class="remove-btn w-7 h-7 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-400 hover:text-red-600 transition-colors mt-0.5" data-id="${escHtml(item.id)}">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            </button>
-            <span class="text-[12px] font-extrabold text-brand-dark">Rp ${formatRupiah(subTotalItem)}</span>
-          </div>
-        </div>`;
-    }).join('');
+  DOM.cartBody.querySelectorAll('.qty-input').forEach(input => {
+    input.addEventListener('change', (e) => {
+      let val = parseInt(e.target.value);
+      const id = input.dataset.id;
+      if (isNaN(val) || val < 1) val = 1;
 
-    DOM.cartBody.innerHTML += `
-      <div class="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-center justify-between sticky bottom-0 bg-white shadow-sm">
-        <span class="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Total Harga:</span>
-        <span class="text-[16px] font-black text-[rgb(0,35,111)]">Rp ${formatRupiah(totalBiayaKeranjang)}</span>
-      </div>
-    `;
-
-    DOM.cartBody.querySelectorAll('.qty-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const delta = btn.dataset.action === 'inc' ? 1 : -1;
-        changeQty(btn.dataset.id, delta);
-      });
+      const item = cart.find(i => i.id === id);
+      if (item) {
+        item.qty = val;
+        saveCartToStorage();
+        updateCartUI();
+      }
     });
 
-    DOM.cartBody.querySelectorAll('.qty-input').forEach(input => {
-      input.addEventListener('change', (e) => {
-        let val = parseInt(e.target.value);
-        const id = input.dataset.id;
-        if (isNaN(val) || val < 1) val = 1;
-        
-        const item = cart.find(i => i.id === id);
-        if (item) {
-          item.qty = val;
-          saveCartToStorage();
-          updateCartUI();
-        }
-      });
-
-      input.addEventListener('keydown', (e) => {
-        if (['-', '+', 'e', 'E'].includes(e.key)) e.preventDefault();
-      });
+    input.addEventListener('keydown', (e) => {
+      if (['-', '+', 'e', 'E'].includes(e.key)) e.preventDefault();
     });
+  });
 
-    DOM.cartBody.querySelectorAll('.remove-btn').forEach(btn => {
-      btn.addEventListener('click', () => removeFromCart(btn.dataset.id));
-    });
-
-  } catch (error) {
-    console.error("Gagal menyinkronkan data harga dari database:", error);
-  }
+  DOM.cartBody.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => removeFromCart(btn.dataset.id));
+  });
 }
 
 /* -----------------------------------------------
@@ -370,17 +322,28 @@ function animateBadge() {
 
 /* -----------------------------------------------
    CHECKOUT: sendToWhatsApp
+   Klik tombol keranjang -> buka WhatsApp dengan daftar produk
+   yang sudah dipilih, BUKAN redirect ke halaman checkout/login.
 ----------------------------------------------- */
-function sendToWhatsApp() {
+function sendToWhatsApp(e) {
+  if (e) e.preventDefault(); // batalkan navigasi bawaan tag <a href="...">
+
   if (cart.length === 0) return;
 
-  const isUserLoggedIn = document.getElementById('profile-dropdown-wrapper') !== null;
+  const nomorWhatsApp = '628123651717'; // sama dengan tombol WA lain di halaman ini
 
-  if (isUserLoggedIn) {
-      window.location.href = "/checkout";
-  } else {
-      window.location.href = "/customer/login";
-  }
+  const daftarProduk = cart.map((item, index) => {
+    const variantText = item.variant ? ` (${item.variant})` : '';
+    return `${index + 1}. ${item.name}${variantText} - ${item.qty} pcs`;
+  }).join('\n');
+
+  const pesan =
+    `Halo Scaffolding Ringlock Tangerang, saya ingin menanyakan produk berikut:\n\n` +
+    `${daftarProduk}\n\n` +
+    `Mohon informasi selanjutnya. Terima kasih.`;
+
+  const url = `https://wa.me/${nomorWhatsApp}?text=${encodeURIComponent(pesan)}`;
+  window.open(url, '_blank', 'noopener');
 }
 
 /* -----------------------------------------------
